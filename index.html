@@ -27,22 +27,11 @@
       <ul class="navbar-nav">
         <li><button class="nav-link active" data-view="home" onclick="showView('home')">Home</button></li>
         <li><button class="nav-link" data-view="menu" onclick="showView('menu')">Menu</button></li>
-        <li><button class="nav-link" data-view="orders" id="ordersNavBtn" onclick="showView('orders')" style="display:none">Orders</button></li>
       </ul>
     </div>
 
     <div class="navbar-actions">
-      <button class="theme-toggle" onclick="ThemeManager.toggle()" title="Toggle Theme">
-        <span id="themeIcon">☀️</span>
-      </button>
-      <button class="btn btn-ghost cart-btn" onclick="showView('cart')">
-        🛒 <span class="d-none-mobile">Cart</span>
-        <span id="cartBadge" class="cart-badge">0</span>
-      </button>
-      <div id="authArea">
-        <button class="btn btn-outline" onclick="showView('login')">Login</button>
-        <button class="btn btn-primary" onclick="showView('register')">Register</button>
-      </div>
+      <!-- Minimal Digital Menu - No actions needed -->
     </div>
   </div>
 </nav>
@@ -56,7 +45,7 @@
         <div>
           <div class="hero-badge">🎓 Trusted by 3,000+ students</div>
           <h1>Order Your <span class="highlight">Favourite South Indian Food</span></h1>
-          <p class="hero-desc">Skip the queue — order from your college canteen, track it live, and pick it up hot & fresh. Dosa, Idli, Biryani and more!</p>
+          <p class="hero-desc">View our digital menu card, check today's specials, and order at the counter. Dosa, Idli, Biryani and more!</p>
           <div class="hero-search">
             <span class="search-icon">🔍</span>
             <input type="text" id="heroSearch" placeholder="Search for dosa, biryani, coffee..." onkeydown="if(event.key==='Enter')searchFromHero()">
@@ -105,16 +94,16 @@
         <div class="step-title">1. Browse Menu</div>
       </div>
       <div class="step-item">
-        <div class="step-icon">🛒</div>
-        <div class="step-title">2. Add to Cart</div>
+        <div class="step-icon">⭐</div>
+        <div class="step-title">2. Check Specials</div>
       </div>
       <div class="step-item">
-        <div class="step-icon">💳</div>
-        <div class="step-title">3. Pay & Confirm</div>
+        <div class="step-icon">🚶</div>
+        <div class="step-title">3. Go to Counter</div>
       </div>
       <div class="step-item">
-        <div class="step-icon">📦</div>
-        <div class="step-title">4. Track & Pickup</div>
+        <div class="step-icon">🍽️</div>
+        <div class="step-title">4. Enjoy Your Meal</div>
       </div>
     </div>
   </section>
@@ -138,162 +127,7 @@
   </section>
 </div>
 
-<!-- ============ CART ============ -->
-<div class="view" id="view-cart">
-  <section class="container page-content py-5">
-    <h1 class="section-title mb-4">🛒 Your Cart</h1>
-    <div id="cartContent"></div>
-  </section>
-</div>
-
-<!-- ============ CHECKOUT ============ -->
-<div class="view" id="view-checkout">
-  <section class="container page-content py-5">
-    <h1 class="section-title mb-4">📦 Checkout</h1>
-    <div class="checkout-layout">
-      <div>
-        <div class="glass-card-static mb-4">
-          <h4 class="mb-3" style="font-family:var(--font-heading)">Student Details</h4>
-          <div class="form-row mb-3">
-            <div class="form-group"><label class="form-label">Full Name</label><input id="co_name" class="form-input" required></div>
-            <div class="form-group"><label class="form-label">Roll Number</label><input id="co_roll" class="form-input"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Department</label><input id="co_dept" class="form-input"></div>
-            <div class="form-group"><label class="form-label">Phone Number</label><input id="co_phone" class="form-input" required></div>
-          </div>
-        </div>
-        <div class="glass-card-static mb-4">
-          <h4 class="mb-3" style="font-family:var(--font-heading)">Order Type & Pickup</h4>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Order Type</label>
-              <select id="co_type" class="form-select">
-                <option value="pickup">Self Pickup</option>
-                <option value="delivery">Deliver to Department/Hostel</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Pickup Time</label>
-              <select id="co_time" class="form-select">
-                <option>ASAP</option>
-                <option>15 mins</option>
-                <option>30 mins</option>
-                <option>1 hour</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="glass-card-static">
-          <h4 class="mb-3" style="font-family:var(--font-heading)">Payment Method</h4>
-          <p class="small text-muted">Demo payment system — no real transactions are processed.</p>
-          <div class="payment-options">
-            <div class="payment-option">
-              <input type="radio" name="pm" id="pm-upi" value="UPI" checked>
-              <label for="pm-upi"><span class="pay-icon">📱</span>UPI</label>
-            </div>
-            <div class="payment-option">
-              <input type="radio" name="pm" id="pm-cash" value="Cash">
-              <label for="pm-cash"><span class="pay-icon">💵</span>Cash</label>
-            </div>
-            <div class="payment-option">
-              <input type="radio" name="pm" id="pm-card" value="Card">
-              <label for="pm-card"><span class="pay-icon">💳</span>Card</label>
-            </div>
-            <div class="payment-option">
-              <input type="radio" name="pm" id="pm-nb" value="Net Banking">
-              <label for="pm-nb"><span class="pay-icon">🏦</span>Net Banking</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div class="glass-card-static">
-          <h4 style="margin-bottom:1rem;font-family:var(--font-heading)">Order Summary</h4>
-          <div id="checkoutSummaryItems"></div>
-          <div class="divider"></div>
-          <div class="summary-row"><span>Subtotal</span><strong id="co_subtotal"></strong></div>
-          <div class="summary-row"><span>Tax (5%)</span><strong id="co_tax"></strong></div>
-          <div class="summary-row total"><span>Total</span><strong class="total-value" id="co_total"></strong></div>
-          <button class="btn btn-primary w-100 mt-3" onclick="placeOrder()">Place Order</button>
-          <button class="btn btn-outline w-100 mt-2" onclick="showView('cart')">Back to Cart</button>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ============ CONFIRMATION ============ -->
-<div class="view" id="view-confirmation">
-  <section class="container page-content py-5" style="max-width:750px;margin:0 auto">
-    <div class="text-center mb-4">
-      <div class="confirmation-icon">✅</div>
-      <h2 class="section-title mt-3">Order Placed Successfully!</h2>
-      <p class="section-subtitle" id="confMessage"></p>
-    </div>
-    <div class="glass-card-static" id="receiptBox"></div>
-    <div class="d-flex gap-3 justify-content-center mt-4">
-      <button class="btn btn-outline" onclick="window.print()">🖨️ Print Receipt</button>
-      <button class="btn btn-primary" id="trackBtn">Track Order</button>
-    </div>
-  </section>
-</div>
-
-<!-- ============ ORDERS / TRACKING ============ -->
-<div class="view" id="view-orders">
-  <section class="container page-content py-5">
-    <h1 class="section-title mb-4">📋 My Orders</h1>
-    <div id="ordersContent"></div>
-  </section>
-</div>
-
-<!-- ============ LOGIN ============ -->
-<div class="view" id="view-login">
-  <div class="auth-container">
-    <div class="glass-card-static">
-      <div class="auth-icon">🍽️</div>
-      <h3 class="auth-title section-title">Student Login</h3>
-      <div id="loginAlert"></div>
-      <div class="form-group mb-3">
-        <label class="form-label">Email</label>
-        <input id="li_email" class="form-input" value="student@college.edu">
-      </div>
-      <div class="form-group mb-3">
-        <label class="form-label">Password</label>
-        <input id="li_pass" type="password" class="form-input" value="Student@123">
-      </div>
-      <button class="btn btn-primary w-100 mb-3" onclick="doLogin()">Login</button>
-      <p class="text-center small mb-2">No account? <a href="#" onclick="showView('register');return false" style="font-weight:700">Register</a></p>
-      <p class="text-center small mb-0"><a href="#" onclick="showView('adminLogin');return false" class="text-muted">Canteen Staff / Admin Login →</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- ============ REGISTER ============ -->
-<div class="view" id="view-register">
-  <div class="auth-container wide">
-    <div class="glass-card-static">
-      <div class="auth-icon">👤</div>
-      <h3 class="auth-title section-title">Create Account</h3>
-      <div id="registerAlert"></div>
-      <div class="form-row mb-3">
-        <div class="form-group"><label class="form-label">Full Name</label><input id="rg_name" class="form-input"></div>
-        <div class="form-group"><label class="form-label">Roll Number</label><input id="rg_roll" class="form-input"></div>
-      </div>
-      <div class="form-row mb-3">
-        <div class="form-group"><label class="form-label">Department</label><input id="rg_dept" class="form-input"></div>
-        <div class="form-group"><label class="form-label">Phone</label><input id="rg_phone" class="form-input"></div>
-      </div>
-      <div class="form-group mb-3"><label class="form-label">Email</label><input id="rg_email" class="form-input"></div>
-      <div class="form-row mb-3">
-        <div class="form-group"><label class="form-label">Password</label><input id="rg_pass" type="password" class="form-input"></div>
-        <div class="form-group"><label class="form-label">Confirm Password</label><input id="rg_pass2" type="password" class="form-input"></div>
-      </div>
-      <button class="btn btn-primary w-100 mt-3" onclick="doRegister()">Create Account</button>
-      <p class="text-center mt-3 small mb-0">Already registered? <a href="#" onclick="showView('login');return false" style="font-weight:700">Login</a></p>
-    </div>
-  </div>
-</div>
+<!-- Removed unnecessary views -->
 
 <!-- ============ ADMIN LOGIN ============ -->
 <div class="view" id="view-adminLogin">
@@ -311,7 +145,7 @@
         <input id="ad_pass" type="password" class="form-input" value="Admin@123">
       </div>
       <button class="btn btn-primary w-100" onclick="doAdminLogin()">Login to Dashboard</button>
-      <p class="text-center mt-3 small mb-0"><a href="#" onclick="showView('home');return false" class="text-muted">← Back to student site</a></p>
+      <p class="text-center mt-3 small mb-0"><a href="#" onclick="showView('home');return false" class="text-muted">← Back to Menu</a></p>
     </div>
   </div>
 </div>
@@ -332,8 +166,6 @@
         <a class="sidebar-link active" data-tab="dashboard" onclick="showAdminTab('dashboard')">📊 Dashboard</a>
         <a class="sidebar-link" data-tab="food" onclick="showAdminTab('food')">🍽️ Food Management</a>
         <a class="sidebar-link" data-tab="stock" onclick="showAdminTab('stock')">📦 Stock Management</a>
-        <a class="sidebar-link" data-tab="orders" onclick="showAdminTab('orders')">📋 Order Management</a>
-        <a class="sidebar-link" data-tab="users" onclick="showAdminTab('users')">👥 User Management</a>
         <a class="sidebar-link danger" onclick="logoutAdmin()">🚪 Logout</a>
       </nav>
     </aside>
@@ -345,9 +177,14 @@
 
 <!-- ============ FOOTER ============ -->
 <footer class="footer" id="mainFooter">
-  <div class="container">
-    <p class="mb-1">© 2026 Campus Bites Canteen. Built for academic demonstration purposes.</p>
-    <p class="mb-0">This is a client-side demo — data resets on page reload.</p>
+  <div class="container d-flex justify-content-between align-items-center flex-wrap">
+    <div>
+      <p class="mb-1">© 2026 Campus Bites Canteen.</p>
+      <p class="mb-0 text-muted small">Digital Menu Card Demo</p>
+    </div>
+    <div>
+      <a href="#" onclick="showView('adminLogin');return false" class="text-muted small">Admin Login</a>
+    </div>
   </div>
 </footer>
 

@@ -3,26 +3,7 @@
    Pure vanilla JS, no frameworks, no jQuery
    ============================================================ */
 
-/* ============================================================
-   THEME SYSTEM
-   ============================================================ */
-const ThemeManager = {
-  init() {
-    const saved = localStorage.getItem('cb-theme') || 'dark';
-    this.set(saved);
-  },
-  set(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('cb-theme', theme);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-  },
-  toggle() {
-    const current = document.documentElement.getAttribute('data-theme');
-    this.set(current === 'dark' ? 'light' : 'dark');
-  }
-};
-
+/* Theme system removed */
 /* ============================================================
    DATA STORE
    ============================================================ */
@@ -222,22 +203,13 @@ let foodItems = [
   }
 ];
 
-let users = [
-  { id: 1, name: 'Aarav Sharma', roll: 'CS2023001', dept: 'Computer Science', email: 'student@college.edu', phone: '9876543210', pass: 'Student@123', status: 'active' }
-];
-
 const admins = [
   { id: 1, name: 'Canteen Admin', email: 'admin@canteen.edu', pass: 'Admin@123', role: 'super_admin' }
 ];
 
-let cart = [];
-let orders = [];
-let orderSeq = 1000;
-let currentUser = null;
 let currentAdmin = null;
 let activeMenuCat = 'all';
 let currentAdminTab = 'dashboard';
-let adminOrderFilter = 'all';
 
 /* ============================================================
    UTILITIES
@@ -312,9 +284,6 @@ function showView(name) {
 
   if (name === 'home') renderHome();
   if (name === 'menu') renderMenu();
-  if (name === 'cart') renderCart();
-  if (name === 'checkout') renderCheckout();
-  if (name === 'orders') renderOrders();
   if (name === 'admin') showAdminTab(currentAdminTab || 'dashboard');
 }
 
@@ -414,14 +383,9 @@ function foodCardHtml(f, index = 0) {
       <div class="food-card-footer">
         <span class="food-price">${rupees(f.price)}</span>
         ${inStock
-          ? '<span class="badge badge-success">In Stock</span>'
+          ? '<span class="badge badge-success">Available</span>'
           : '<span class="badge badge-danger">Out of Stock</span>'}
       </div>
-      ${inStock ? `
-      <div class="food-card-actions">
-        <button class="btn btn-primary btn-sm" onclick="addToCart(${f.id})">🛒 Add</button>
-        <button class="btn btn-outline btn-sm" onclick="addToCart(${f.id});showView('cart')">Buy Now</button>
-      </div>` : '<button class="btn btn-secondary btn-sm w-100" disabled>Unavailable</button>'}
     </div>
   </div>`;
 }
@@ -460,393 +424,6 @@ function renderMenu() {
 }
 
 /* ============================================================
-   CART
-   ============================================================ */
-function addToCart(foodId) {
-  if (!currentUser) {
-    showToast('Please login to add items to your cart.', 'info');
-    showView('login');
-    return;
-  }
-  const f = foodById(foodId);
-  if (!f || !f.available || f.stock < 1) {
-    showToast('This item is unavailable.', 'error');
-    return;
-  }
-  const line = cart.find(c => c.foodId === foodId);
-  if (line) line.qty += 1; else cart.push({ foodId, qty: 1 });
-  updateCartBadge();
-  showToast(esc(f.name) + ' added to cart.', 'success');
-
-  // Bump animation
-  const badge = $('cartBadge');
-  if (badge) {
-    badge.classList.remove('bump');
-    void badge.offsetWidth;
-    badge.classList.add('bump');
-  }
-}
-
-function updateCartBadge() {
-  const count = cart.reduce((s, c) => s + c.qty, 0);
-  const badge = $('cartBadge');
-  if (badge) badge.textContent = count;
-}
-
-function cartTotals() {
-  let subtotal = 0;
-  cart.forEach(c => {
-    const f = foodById(c.foodId);
-    if (f) subtotal += f.price * c.qty;
-  });
-  const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
-  return { subtotal, tax, total: Math.round((subtotal + tax) * 100) / 100 };
-}
-
-function renderCart() {
-  const content = $('cartContent');
-  if (!content) return;
-
-  if (!currentUser) {
-    content.innerHTML = emptyState('🔒', 'Please login to view your cart.');
-    return;
-  }
-  if (!cart.length) {
-    content.innerHTML = emptyState('🛒', 'Your cart is empty.', true);
-    return;
-  }
-
-  const rows = cart.map(c => {
-    const f = foodById(c.foodId);
-    return `
-    <div class="cart-item">
-      <img class="cart-item-img" src="${f.img}" alt="${esc(f.name)}" onerror="this.style.background='var(--bg-tertiary)';this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1 1%22/>'">
-      <div class="cart-item-info">
-        <div class="cart-item-name">${esc(f.name)}</div>
-        <div class="cart-item-price">${rupees(f.price)} each</div>
-      </div>
-      <div class="qty-control">
-        <button onclick="changeQty(${f.id},-1)">−</button>
-        <input value="${c.qty}" readonly>
-        <button onclick="changeQty(${f.id},1)">+</button>
-      </div>
-      <div class="cart-item-total">${rupees(f.price * c.qty)}</div>
-      <button class="cart-item-remove" onclick="removeFromCart(${f.id})">🗑</button>
-    </div>`;
-  }).join('');
-
-  const t = cartTotals();
-  content.innerHTML = `
-  <div class="cart-layout">
-    <div>${rows}</div>
-    <div class="summary-card">
-      <div class="glass-card-static">
-        <h4 style="margin-bottom:1rem;font-family:var(--font-heading)">Order Summary</h4>
-        <div class="summary-row"><span>Subtotal</span><strong>${rupees(t.subtotal)}</strong></div>
-        <div class="summary-row"><span>Tax (5%)</span><strong>${rupees(t.tax)}</strong></div>
-        <div class="summary-row total"><span>Grand Total</span><strong class="total-value">${rupees(t.total)}</strong></div>
-        <button class="btn btn-primary w-100 mt-3" onclick="showView('checkout')">Proceed to Checkout →</button>
-        <button class="btn btn-outline w-100 mt-2" onclick="showView('menu')">Add More Items</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function changeQty(foodId, delta) {
-  const line = cart.find(c => c.foodId === foodId);
-  if (!line) return;
-  line.qty = Math.max(1, line.qty + delta);
-  updateCartBadge();
-  renderCart();
-}
-
-function removeFromCart(foodId) {
-  cart = cart.filter(c => c.foodId !== foodId);
-  updateCartBadge();
-  renderCart();
-  showToast('Item removed from cart.', 'info');
-}
-
-function emptyState(icon, msg, showBtn) {
-  return `<div class="empty-state">
-    <div class="empty-state-icon">${icon}</div>
-    <p>${msg}</p>
-    ${showBtn ? '<button class="btn btn-primary mt-3" onclick="showView(\'menu\')">Browse Menu</button>' : ''}
-  </div>`;
-}
-
-/* ============================================================
-   CHECKOUT & PLACE ORDER
-   ============================================================ */
-function renderCheckout() {
-  if (!cart.length) { showView('cart'); return; }
-  if ($('co_name')) $('co_name').value = currentUser.name;
-  if ($('co_roll')) $('co_roll').value = currentUser.roll || '';
-  if ($('co_dept')) $('co_dept').value = currentUser.dept || '';
-  if ($('co_phone')) $('co_phone').value = currentUser.phone || '';
-
-  const t = cartTotals();
-  const summaryItems = $('checkoutSummaryItems');
-  if (summaryItems) {
-    summaryItems.innerHTML = cart.map(c => {
-      const f = foodById(c.foodId);
-      return `<div class="summary-row small"><span>${esc(f.name)} × ${c.qty}</span><span>${rupees(f.price * c.qty)}</span></div>`;
-    }).join('');
-  }
-  if ($('co_subtotal')) $('co_subtotal').textContent = rupees(t.subtotal);
-  if ($('co_tax')) $('co_tax').textContent = rupees(t.tax);
-  if ($('co_total')) $('co_total').textContent = rupees(t.total);
-}
-
-function placeOrder() {
-  const name = ($('co_name')?.value || '').trim();
-  const roll = ($('co_roll')?.value || '').trim();
-  const dept = ($('co_dept')?.value || '').trim();
-  const phone = ($('co_phone')?.value || '').trim();
-  const type = $('co_type')?.value || 'pickup';
-  const time = $('co_time')?.value || 'ASAP';
-  const pmEl = document.querySelector('input[name="pm"]:checked');
-  const method = pmEl ? pmEl.value : 'UPI';
-
-  if (name.length < 3 || !/^[0-9]{10}$/.test(phone)) {
-    showToast('Please provide a valid name and 10-digit phone number.', 'error');
-    return;
-  }
-
-  for (const c of cart) {
-    const f = foodById(c.foodId);
-    if (!f || f.stock < c.qty) {
-      showToast(`Sorry, "${f ? f.name : 'item'}" no longer has enough stock.`, 'error');
-      return;
-    }
-  }
-
-  const t = cartTotals();
-  const items = cart.map(c => {
-    const f = foodById(c.foodId);
-    return { foodId: f.id, name: f.name, price: f.price, qty: c.qty, total: f.price * c.qty };
-  });
-
-  items.forEach(it => { foodById(it.foodId).stock -= it.qty; });
-
-  const order = {
-    id: ++orderSeq, userId: currentUser.id, studentName: name, roll, dept, phone,
-    type, time, method, items, subtotal: t.subtotal, tax: t.tax, total: t.total,
-    status: 'pending', txRef: method.toUpperCase().replace(' ', '') + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
-    createdAt: new Date()
-  };
-  orders.unshift(order);
-  cart = [];
-  updateCartBadge();
-
-  $('confMessage').textContent = `Your order #${order.id} has been received and is being processed.`;
-  $('receiptBox').innerHTML = receiptHtml(order);
-  $('trackBtn').onclick = () => { showView('orders'); setTimeout(() => trackOrder(order.id), 50); };
-  showView('confirmation');
-  showToast('Order placed successfully!', 'success');
-}
-
-function receiptHtml(o) {
-  const rows = o.items.map(it => `<tr><td>${esc(it.name)}</td><td style="text-align:center">${it.qty}</td><td style="text-align:right">${rupees(it.price)}</td><td style="text-align:right">${rupees(it.total)}</td></tr>`).join('');
-  return `
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div><h4 style="margin:0;font-family:var(--font-heading)">Campus Bites Canteen</h4><span class="small text-muted">Order Receipt</span></div>
-    <span class="badge ${statusBadgeClass(o.status)}">${cap(o.status)}</span>
-  </div>
-  <div class="divider"></div>
-  <div class="receipt-grid mb-3">
-    <div><strong>Order ID:</strong> #${o.id}</div>
-    <div><strong>Date:</strong> ${o.createdAt.toLocaleString()}</div>
-    <div><strong>Student:</strong> ${esc(o.studentName)}</div>
-    <div><strong>Roll No:</strong> ${esc(o.roll || '-')}</div>
-    <div><strong>Order Type:</strong> ${cap(o.type)}</div>
-    <div><strong>Pickup Time:</strong> ${esc(o.time)}</div>
-    <div><strong>Payment:</strong> ${esc(o.method)}</div>
-    <div><strong>Transaction Ref:</strong> ${o.txRef}</div>
-  </div>
-  <div class="divider"></div>
-  <div class="table-responsive">
-    <table class="data-table">
-      <thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </div>
-  <div class="divider"></div>
-  <div class="summary-row"><span>Subtotal</span><span>${rupees(o.subtotal)}</span></div>
-  <div class="summary-row"><span>Tax</span><span>${rupees(o.tax)}</span></div>
-  <div class="summary-row total"><span>Grand Total</span><span class="total-value">${rupees(o.total)}</span></div>`;
-}
-
-/* ============================================================
-   ORDER HISTORY & TRACKING
-   ============================================================ */
-function renderOrders() {
-  const content = $('ordersContent');
-  if (!content) return;
-
-  if (!currentUser) {
-    content.innerHTML = emptyState('🔒', 'Please login to view your orders.');
-    return;
-  }
-
-  const myOrders = orders.filter(o => o.userId === currentUser.id);
-  if (!myOrders.length) {
-    content.innerHTML = emptyState('📋', "You haven't placed any orders yet.", true);
-    return;
-  }
-
-  const rows = myOrders.map(o => `
-    <tr>
-      <td>#${o.id}</td>
-      <td>${o.createdAt.toLocaleString()}</td>
-      <td>${o.items.length} item(s)</td>
-      <td>${rupees(o.total)}</td>
-      <td><span class="badge ${statusBadgeClass(o.status)}">${cap(o.status)}</span></td>
-      <td style="text-align:right"><button class="btn btn-outline btn-sm" onclick="trackOrder(${o.id})">Track</button></td>
-    </tr>`).join('');
-
-  content.innerHTML = `
-    <div id="trackingBox" class="mb-5"></div>
-    <h4 class="mb-3" style="font-family:var(--font-heading)">Order History</h4>
-    <div class="glass-card-static">
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead><tr><th>Order ID</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>`;
-  trackOrder(myOrders[0].id);
-}
-
-const STEPS = [
-  ['pending', 'Order Placed', '📦'],
-  ['confirmed', 'Confirmed', '✅'],
-  ['preparing', 'Preparing', '🔥'],
-  ['ready', 'Ready', '🔔'],
-  ['completed', 'Completed', '🎉']
-];
-
-function trackOrder(orderId) {
-  const o = orders.find(x => x.id === orderId);
-  if (!o) return;
-  const box = $('trackingBox');
-  if (!box) return;
-
-  if (o.status === 'cancelled') {
-    box.innerHTML = `<div class="glass-card-static"><h4>Order #${o.id}</h4><span class="badge badge-cancelled">Cancelled</span></div>`;
-    return;
-  }
-
-  const idx = STEPS.findIndex(s => s[0] === o.status);
-  const stepsHtml = STEPS.map((s, i) => {
-    const cls = i < idx ? 'done' : (i === idx ? 'active' : '');
-    const icon = i < idx ? '✓' : s[2];
-    return `<div class="timeline-step ${cls}"><div class="timeline-dot">${icon}</div><div class="timeline-label">${s[1]}</div></div>`;
-  }).join('');
-
-  const itemsList = o.items.map(it => `<div class="summary-row small"><span>${esc(it.name)} × ${it.qty}</span><span>${rupees(it.total)}</span></div>`).join('');
-
-  box.innerHTML = `
-    <div class="glass-card-static">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h4 style="margin:0;font-family:var(--font-heading)">Tracking Order #${o.id}</h4>
-        <span class="badge ${statusBadgeClass(o.status)}">${cap(o.status)}</span>
-      </div>
-      <p class="small text-muted mb-3">Placed ${o.createdAt.toLocaleString()} · Estimated prep time: 15-20 mins</p>
-      <div class="order-timeline">${stepsHtml}</div>
-      <div class="divider"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div>${itemsList}</div>
-        <div style="text-align:right"><strong>Order Total: </strong><span class="food-price">${rupees(o.total)}</span></div>
-      </div>
-    </div>`;
-}
-
-/* ============================================================
-   AUTH — STUDENT
-   ============================================================ */
-function doLogin() {
-  const email = ($('li_email')?.value || '').trim();
-  const pass = $('li_pass')?.value || '';
-  const u = users.find(x => x.email === email);
-  if (!u || u.pass !== pass) { $('loginAlert').innerHTML = alertHtml('Invalid email or password.'); return; }
-  if (u.status === 'blocked') { $('loginAlert').innerHTML = alertHtml('Your account has been blocked.'); return; }
-  currentUser = u;
-  $('loginAlert').innerHTML = '';
-  refreshAuthArea();
-  showToast('Welcome back, ' + u.name.split(' ')[0] + '!', 'success');
-  showView('home');
-}
-
-function doRegister() {
-  const name = ($('rg_name')?.value || '').trim();
-  const roll = ($('rg_roll')?.value || '').trim();
-  const dept = ($('rg_dept')?.value || '').trim();
-  const phone = ($('rg_phone')?.value || '').trim();
-  const email = ($('rg_email')?.value || '').trim();
-  const pass = $('rg_pass')?.value || '';
-  const pass2 = $('rg_pass2')?.value || '';
-
-  const errors = [];
-  if (name.length < 3) errors.push('Full name must be at least 3 characters.');
-  if (!/^\S+@\S+\.\S+$/.test(email)) errors.push('Please enter a valid email.');
-  if (pass.length < 6) errors.push('Password must be at least 6 characters.');
-  if (pass !== pass2) errors.push('Passwords do not match.');
-  if (!/^[0-9]{10}$/.test(phone)) errors.push('Phone number must be 10 digits.');
-  if (users.some(u => u.email === email)) errors.push('An account with this email already exists.');
-
-  if (errors.length) { $('registerAlert').innerHTML = alertHtml(errors.join(' ')); return; }
-
-  const newUser = { id: users.length + 1, name, roll, dept, email, phone, pass, status: 'active' };
-  users.push(newUser);
-  $('registerAlert').innerHTML = '';
-  showToast('Registration successful! Please login.', 'success');
-  $('li_email').value = email;
-  $('li_pass').value = pass;
-  showView('login');
-}
-
-function refreshAuthArea() {
-  const area = $('authArea');
-  if (!area) return;
-
-  if (currentUser) {
-    area.innerHTML = `
-      <div style="position:relative">
-        <button class="btn btn-primary" onclick="toggleUserMenu()" id="userMenuBtn">
-          👤 ${esc(currentUser.name.split(' ')[0])} ▾
-        </button>
-        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:200px;z-index:100" class="glass-card-static">
-          <a href="#" onclick="showView('orders');toggleUserMenu();return false" style="display:block;padding:0.5rem 0;color:var(--text-primary);font-weight:600">📋 Order History</a>
-          <div class="divider" style="margin:0.5rem 0"></div>
-          <a href="#" onclick="logoutUser();return false" style="display:block;padding:0.5rem 0;color:var(--danger);font-weight:600">🚪 Logout</a>
-        </div>
-      </div>`;
-    const ordersNav = $('ordersNavBtn');
-    if (ordersNav) ordersNav.style.display = '';
-  } else {
-    area.innerHTML = `
-      <button class="btn btn-outline" onclick="showView('login')">Login</button>
-      <button class="btn btn-primary" onclick="showView('register')">Register</button>`;
-    const ordersNav = $('ordersNavBtn');
-    if (ordersNav) ordersNav.style.display = 'none';
-  }
-}
-
-function toggleUserMenu() {
-  const dd = $('userDropdown');
-  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
-}
-
-function logoutUser() {
-  currentUser = null;
-  cart = [];
-  updateCartBadge();
-  refreshAuthArea();
-  showToast('Logged out.', 'info');
-  showView('home');
-}
 
 /* ============================================================
    AUTH — ADMIN
@@ -874,58 +451,26 @@ function showAdminTab(tab) {
   document.querySelectorAll('.sidebar-link[data-tab]').forEach(a => a.classList.remove('active'));
   const link = document.querySelector(`.sidebar-link[data-tab="${tab}"]`);
   if (link) link.classList.add('active');
-  const map = { dashboard: renderAdminDashboard, food: renderAdminFood, stock: renderAdminStock, orders: renderAdminOrders, users: renderAdminUsers };
+  const map = { dashboard: renderAdminDashboard, food: renderAdminFood, stock: renderAdminStock };
   (map[tab] || renderAdminDashboard)();
 }
 
 function renderAdminDashboard() {
-  const totalUsers = users.length;
-  const today = new Date().toDateString();
-  const todayOrders = orders.filter(o => o.createdAt.toDateString() === today).length;
-  const pendingOrders = orders.filter(o => ['pending', 'confirmed', 'preparing'].includes(o.status)).length;
-  const completedOrders = orders.filter(o => o.status === 'completed').length;
-  const todaySales = orders.filter(o => o.createdAt.toDateString() === today && o.status !== 'cancelled').reduce((s, o) => s + o.total, 0);
   const totalFoodItems = foodItems.length;
 
   const content = $('adminTabContent');
   if (!content) return;
 
-  const recentRows = orders.slice(0, 6).map(o => `
-    <tr>
-      <td>#${o.id}</td><td>${esc(o.studentName)}</td><td>${rupees(o.total)}</td>
-      <td>${esc(o.method)}</td><td><span class="badge ${statusBadgeClass(o.status)}">${cap(o.status)}</span></td>
-      <td>${o.createdAt.toLocaleString()}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="text-center text-muted" style="padding:2rem">No orders yet.</td></tr>';
-
   content.innerHTML = `
     <div class="glass-card-static mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <div><h3 style="margin:0;font-family:var(--font-heading)">Welcome, ${esc(currentAdmin.name)}</h3><p class="small text-muted mb-0">Here's what's happening at the canteen today</p></div>
+      <div><h3 style="margin:0;font-family:var(--font-heading)">Welcome, ${esc(currentAdmin.name)}</h3><p class="small text-muted mb-0">Admin Dashboard</p></div>
       <span class="badge badge-secondary">${new Date().toDateString()}</span>
     </div>
     <div class="stats-grid mb-4">
-      ${statCard('👥', '#f59e0b', totalUsers, 'Total Users')}
-      ${statCard('📋', '#3b82f6', todayOrders, "Today's Orders")}
-      ${statCard('⏳', '#eab308', pendingOrders, 'Pending Orders')}
-      ${statCard('✅', '#10b981', completedOrders, 'Completed Orders')}
-      ${statCard('💰', '#d97706', rupees(todaySales), "Today's Sales")}
-      ${statCard('🍽️', '#8b5cf6', totalFoodItems, 'Food Items')}
+      ${statCard('🍽️', '#8b5cf6', totalFoodItems, 'Food Items Menu')}
+      ${statCard('📦', '#10b981', foodItems.reduce((a,b)=>a+b.stock,0), 'Total Stock Units')}
     </div>
-    <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:1.5rem" class="mb-4">
-      <div class="glass-card-static"><h5 class="mb-3" style="font-family:var(--font-heading)">Order Status Breakdown</h5><canvas id="statusChart" height="160"></canvas></div>
-      <div class="glass-card-static"><h5 class="mb-3" style="font-family:var(--font-heading)">Most Popular Items</h5><canvas id="popularChart" height="160"></canvas></div>
-    </div>
-    <div class="glass-card-static">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0" style="font-family:var(--font-heading)">Recent Orders</h5>
-        <button class="btn btn-outline btn-sm" onclick="showAdminTab('orders')">View All</button>
-      </div>
-      <div class="table-responsive">
-        <table class="data-table"><thead><tr><th>Order ID</th><th>Student</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead>
-        <tbody>${recentRows}</tbody></table>
-      </div>
-    </div>`;
-
-  renderCharts();
+  `;
 }
 
 function statCard(icon, color, value, label) {
@@ -936,62 +481,7 @@ function statCard(icon, color, value, label) {
   </div>`;
 }
 
-let statusChartInst = null, popularChartInst = null;
-function renderCharts() {
-  if (typeof Chart === 'undefined') return;
-
-  const chartColors = {
-    pending: '#9ca3af', confirmed: '#3b82f6', preparing: '#eab308',
-    ready: '#8b5cf6', completed: '#10b981', cancelled: '#ef4444'
-  };
-
-  // Status chart
-  const statusCounts = {};
-  orders.forEach(o => { statusCounts[o.status] = (statusCounts[o.status] || 0) + 1; });
-  const sLabels = Object.keys(statusCounts).map(cap);
-  const sData = Object.values(statusCounts);
-  const sColors = Object.keys(statusCounts).map(s => chartColors[s] || '#9ca3af');
-
-  if (statusChartInst) statusChartInst.destroy();
-  const ctx1 = $('statusChart');
-  if (ctx1) {
-    statusChartInst = new Chart(ctx1, {
-      type: 'doughnut',
-      data: {
-        labels: sLabels.length ? sLabels : ['No data'],
-        datasets: [{ data: sData.length ? sData : [1], backgroundColor: sColors.length ? sColors : ['#374151'] }]
-      },
-      options: {
-        plugins: { legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() } } }
-      }
-    });
-  }
-
-  // Popular items chart
-  const popMap = {};
-  orders.forEach(o => o.items.forEach(it => { popMap[it.name] = (popMap[it.name] || 0) + it.qty; }));
-  const sorted = Object.entries(popMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
-
-  if (popularChartInst) popularChartInst.destroy();
-  const ctx2 = $('popularChart');
-  if (ctx2) {
-    popularChartInst = new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: sorted.length ? sorted.map(s => s[0]) : ['No data'],
-        datasets: [{ label: 'Units Sold', data: sorted.length ? sorted.map(s => s[1]) : [0], backgroundColor: '#f59e0b' }]
-      },
-      options: {
-        indexAxis: 'y',
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() }, grid: { display: false } }
-        }
-      }
-    });
-  }
-}
+/* Render charts removed as orders are no longer tracked */
 
 /* ---- Admin: Food Management ---- */
 function renderAdminFood() {
@@ -1142,92 +632,7 @@ function updateStock(foodId) {
   showToast('Stock updated.', 'success');
 }
 
-/* ---- Admin: Order Management ---- */
-function filterAdminOrders(s) { adminOrderFilter = s; renderAdminOrders(); }
-
-function renderAdminOrders() {
-  const statuses = ['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'];
-  const filtered = adminOrderFilter === 'all' ? orders : orders.filter(o => o.status === adminOrderFilter);
-  const content = $('adminTabContent');
-  if (!content) return;
-
-  const filterBtns = [`<button class="chip ${adminOrderFilter === 'all' ? 'active' : ''}" onclick="filterAdminOrders('all')">All</button>`]
-    .concat(statuses.map(s => `<button class="chip ${adminOrderFilter === s ? 'active' : ''}" onclick="filterAdminOrders('${s}')">${cap(s)}</button>`));
-
-  const rows = filtered.length ? filtered.map(o => `
-    <tr>
-      <td>#${o.id}</td>
-      <td>${esc(o.studentName)}<br><span class="small text-muted">${esc(o.roll || '')}</span></td>
-      <td>${esc(o.phone)}</td>
-      <td>${rupees(o.total)}</td>
-      <td>${esc(o.method)}</td>
-      <td>${cap(o.type)}</td>
-      <td><span id="statusBadge-${o.id}" class="badge ${statusBadgeClass(o.status)}">${cap(o.status)}</span></td>
-      <td><select class="form-select" style="min-width:130px;padding:0.4rem 2rem 0.4rem 0.6rem" onchange="updateOrderStatus(${o.id}, this.value)">
-        ${statuses.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${cap(s)}</option>`).join('')}
-      </select></td>
-      <td>${o.createdAt.toLocaleString()}</td>
-    </tr>`).join('') : `<tr><td colspan="9" class="text-center text-muted" style="padding:2rem">No orders found for this filter.</td></tr>`;
-
-  content.innerHTML = `
-    <div class="glass-card-static mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <h3 style="margin:0;font-family:var(--font-heading)">📋 Order Management</h3>
-      <div class="d-flex gap-2 flex-wrap">${filterBtns.join('')}</div>
-    </div>
-    <div class="glass-card-static"><div class="table-responsive"><table class="data-table">
-      <thead><tr><th>Order ID</th><th>Student</th><th>Contact</th><th>Total</th><th>Payment</th><th>Type</th><th>Status</th><th>Update</th><th>Date</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div></div>`;
-}
-
-function updateOrderStatus(orderId, status) {
-  const o = orders.find(x => x.id === orderId);
-  if (!o) return;
-  o.status = status;
-  const badge = $('statusBadge-' + orderId);
-  if (badge) { badge.className = 'badge ' + statusBadgeClass(status); badge.textContent = cap(status); }
-  showToast(`Order #${orderId} marked as ${status}.`, 'success');
-}
-
-/* ---- Admin: User Management ---- */
-function renderAdminUsers() {
-  const content = $('adminTabContent');
-  if (!content) return;
-
-  const rows = users.map(u => {
-    const uOrders = orders.filter(o => o.userId === u.id);
-    const spent = uOrders.reduce((s, o) => s + o.total, 0);
-    return `
-    <tr>
-      <td>${esc(u.name)}<br><span class="small text-muted">${esc(u.roll || '')}</span></td>
-      <td>${esc(u.email)}</td>
-      <td>${esc(u.dept || '')}</td>
-      <td>${esc(u.phone || '')}</td>
-      <td>${uOrders.length}</td>
-      <td>${rupees(spent)}</td>
-      <td><span class="badge ${u.status === 'active' ? 'badge-success' : 'badge-danger'}">${cap(u.status)}</span></td>
-      <td style="text-align:right">${u.status === 'active'
-        ? `<button class="btn btn-danger btn-sm" onclick="toggleUserStatus(${u.id},'blocked')">Block</button>`
-        : `<button class="btn btn-success btn-sm" onclick="toggleUserStatus(${u.id},'active')">Unblock</button>`}
-      </td>
-    </tr>`;
-  }).join('');
-
-  content.innerHTML = `
-    <div class="glass-card-static mb-4"><h3 style="margin:0;font-family:var(--font-heading)">👥 User Management</h3></div>
-    <div class="glass-card-static"><div class="table-responsive"><table class="data-table">
-      <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div></div>`;
-}
-
-function toggleUserStatus(userId, status) {
-  const u = users.find(x => x.id === userId);
-  if (!u) return;
-  u.status = status;
-  renderAdminUsers();
-  showToast('User status updated.', 'success');
-}
+/* Admin orders and users management removed */
 
 /* ============================================================
    MOBILE NAV TOGGLE
@@ -1257,8 +662,6 @@ document.addEventListener('click', (e) => {
    INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-  ThemeManager.init();
   createParticles();
   renderHome();
-  updateCartBadge();
 });
