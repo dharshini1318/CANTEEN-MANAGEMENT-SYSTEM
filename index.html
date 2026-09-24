@@ -3,191 +3,232 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campus Bites Canteen — Fresh South Indian Food, Order Online</title>
-  <meta name="description" content="Campus Bites Canteen: Order your favourite South Indian food online. Skip the queue, track your order live, and pick it up hot & fresh. Dosa, Idli, Biryani & more!">
+  <title>Campus Bites — Digital Menu Card</title>
+  <meta name="description" content="Campus Bites Canteen: Browse our digital menu card. Fresh South Indian food — Dosa, Idli, Biryani & more. Check today's specials and availability.">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-<!-- Toast Container -->
-<div id="toastContainer" class="toast-container"></div>
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar" id="customerNav">
+    <div class="container nav-container">
+      <a class="navbar-brand" href="#home" onclick="navigate('home')">
+        <svg class="brand-logo" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"/><path d="M21 7H17"/>
+        </svg>
+        <span class="brand-text">Campus Bites</span>
+      </a>
 
-<!-- ============ CUSTOMER NAVBAR ============ -->
-<nav class="navbar" id="customerNav">
-  <div class="container">
-    <a class="navbar-brand" onclick="showView('home')">
-      <div class="brand-icon">🍽️</div>
-      <span class="brand-text">Campus Bites</span>
-    </a>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
 
-    <button class="mobile-toggle" onclick="toggleMobileNav()">☰</button>
+      <button class="mobile-toggle" onclick="toggleMobileNav()" aria-label="Toggle navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
 
-    <div class="navbar-center">
-      <ul class="navbar-nav">
-        <li><button class="nav-link active" data-view="home" onclick="showView('home')">Home</button></li>
-        <li><button class="nav-link" data-view="menu" onclick="showView('menu')">Menu</button></li>
-      </ul>
+      <div class="navbar-center" id="navCenter">
+        <ul class="navbar-nav">
+          <li><button class="nav-link active" data-view="home" onclick="navigate('home')">Home</button></li>
+          <li><button class="nav-link" data-view="menu" onclick="navigate('menu')">Menu</button></li>
+        </ul>
+      </div>
     </div>
+  </nav>
 
-    <div class="navbar-actions">
-      <!-- Minimal Digital Menu - No actions needed -->
-    </div>
-  </div>
-</nav>
-
-<!-- ============ HOME ============ -->
-<div class="view active" id="view-home">
-  <section class="hero">
-    <div class="particles" id="particles"></div>
-    <div class="container">
-      <div class="hero-content">
-        <div>
-          <div class="hero-badge">🎓 Trusted by 3,000+ students</div>
-          <h1>Order Your <span class="highlight">Favourite South Indian Food</span></h1>
-          <p class="hero-desc">View our digital menu card, check today's specials, and order at the counter. Dosa, Idli, Biryani and more!</p>
-          <div class="hero-search">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="heroSearch" placeholder="Search for dosa, biryani, coffee..." onkeydown="if(event.key==='Enter')searchFromHero()">
-            <button class="btn btn-primary" onclick="searchFromHero()">Search</button>
+  <!-- ============ HOME VIEW ============ -->
+  <main class="view active" id="view-home">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-bg-pattern"></div>
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-text">
+            <p class="hero-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Trusted by 3,000+ Students
+            </p>
+            <h1>Fresh <span class="text-accent">South Indian</span> Food, Made with Love</h1>
+            <p class="hero-desc">Browse our digital menu, check today's specials, and head straight to the counter. No queues, no hassle.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-lg" onclick="navigate('menu')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"/></svg>
+                View Menu
+              </button>
+              <button class="btn btn-ghost btn-lg" onclick="navigate('menu'); setTimeout(()=>scrollToSpecials(),100)">Today's Specials</button>
+            </div>
           </div>
         </div>
-        <div class="hero-visual">
-          <div class="hero-emoji">🍛</div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="section" id="categoriesSection">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Browse by Category</h2>
+          <p class="section-subtitle">From crispy dosas to aromatic filter coffee</p>
+        </div>
+        <div class="categories-grid" id="homeCategories"></div>
+      </div>
+    </section>
+
+    <!-- Today's Special -->
+    <section class="section section-alt" id="specialsSection">
+      <div class="container">
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">Today's Specials</h2>
+            <p class="section-subtitle">Handpicked by our chef</p>
+          </div>
+          <button class="btn btn-outline" onclick="navigate('menu')">Full Menu →</button>
+        </div>
+        <div class="food-grid" id="specialsGrid"></div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-subtitle">Four simple steps</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card stagger-item">
+            <div class="step-number">01</div>
+            <svg class="step-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            <h3>Browse Menu</h3>
+            <p>Explore our full digital menu with live availability</p>
+          </div>
+          <div class="step-card stagger-item">
+            <div class="step-number">02</div>
+            <svg class="step-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <h3>Check Specials</h3>
+            <p>See the chef's daily specials and seasonal picks</p>
+          </div>
+          <div class="step-card stagger-item">
+            <div class="step-number">03</div>
+            <svg class="step-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <h3>Go to Counter</h3>
+            <p>Walk up and place your order — skip the queue</p>
+          </div>
+          <div class="step-card stagger-item">
+            <div class="step-number">04</div>
+            <svg class="step-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"/></svg>
+            <h3>Enjoy Your Meal</h3>
+            <p>Sit back, relax, and savour every bite</p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- Categories -->
-  <section class="container py-5">
-    <div class="text-center mb-4">
-      <h2 class="section-title">Browse by Category</h2>
-      <p class="section-subtitle">From crispy dosas to aromatic filter coffee</p>
-    </div>
-    <div class="categories-grid" id="homeCategories"></div>
-  </section>
-
-  <!-- Today's Special -->
-  <section class="py-5" style="background: var(--glass-bg)">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-          <h2 class="section-title">⭐ Today's Special</h2>
-          <p class="section-subtitle mb-0">Handpicked by our chef</p>
+  <!-- ============ MENU VIEW ============ -->
+  <main class="view" id="view-menu">
+    <section class="menu-header">
+      <div class="container">
+        <h1 class="page-title">Our Menu</h1>
+        <p class="page-subtitle">Freshly prepared South Indian favourites</p>
+        <div class="search-bar">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="menuSearch" placeholder="Search for dosa, biryani, coffee..." oninput="renderMenu()">
         </div>
-        <button class="btn btn-outline" onclick="showView('menu')">View Full Menu</button>
+        <div class="filter-chips" id="menuCategoryFilters"></div>
       </div>
-      <div class="food-grid" id="specialsGrid"></div>
-    </div>
-  </section>
+    </section>
+    <section class="container section">
+      <div class="food-grid" id="menuGrid"></div>
+    </section>
+  </main>
 
-  <!-- How It Works -->
-  <section class="container py-5">
-    <div class="text-center mb-5">
-      <h2 class="section-title">How It Works</h2>
-      <p class="section-subtitle">Four simple steps to deliciousness</p>
-    </div>
-    <div class="steps-grid">
-      <div class="step-item">
-        <div class="step-icon">📋</div>
-        <div class="step-title">1. Browse Menu</div>
-      </div>
-      <div class="step-item">
-        <div class="step-icon">⭐</div>
-        <div class="step-title">2. Check Specials</div>
-      </div>
-      <div class="step-item">
-        <div class="step-icon">🚶</div>
-        <div class="step-title">3. Go to Counter</div>
-      </div>
-      <div class="step-item">
-        <div class="step-icon">🍽️</div>
-        <div class="step-title">4. Enjoy Your Meal</div>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ============ MENU ============ -->
-<div class="view" id="view-menu">
-  <section class="page-content py-5" style="background: var(--glass-bg)">
-    <div class="container">
-      <h1 class="section-title text-center mb-2">Our Full Menu</h1>
-      <p class="section-subtitle text-center mb-4">Freshly prepared South Indian favourites</p>
-      <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="menuSearch" placeholder="Search food items..." oninput="renderMenu()">
-      </div>
-      <div class="filter-chips" id="menuCategoryFilters"></div>
-    </div>
-  </section>
-  <section class="container py-5">
-    <div class="food-grid" id="menuGrid"></div>
-  </section>
-</div>
-
-<!-- Removed unnecessary views -->
-
-<!-- ============ ADMIN LOGIN ============ -->
-<div class="view" id="view-adminLogin">
-  <div class="auth-container">
-    <div class="glass-card-static">
-      <div class="auth-icon">🔒</div>
-      <h3 class="auth-title section-title">Admin Login</h3>
-      <div id="adminLoginAlert" class="alert alert-info">Demo credentials: <strong>admin@canteen.edu</strong> / <strong>Admin@123</strong></div>
-      <div class="form-group mb-3">
-        <label class="form-label">Admin Email</label>
-        <input id="ad_email" class="form-input" value="admin@canteen.edu">
-      </div>
-      <div class="form-group mb-3">
-        <label class="form-label">Password</label>
-        <input id="ad_pass" type="password" class="form-input" value="Admin@123">
-      </div>
-      <button class="btn btn-primary w-100" onclick="doAdminLogin()">Login to Dashboard</button>
-      <p class="text-center mt-3 small mb-0"><a href="#" onclick="showView('home');return false" class="text-muted">← Back to Menu</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- ============ ADMIN DASHBOARD ============ -->
-<div class="view" id="view-admin">
-  <div class="admin-layout">
-    <button class="btn btn-primary admin-mobile-toggle" onclick="toggleAdminSidebar()">☰</button>
-    <aside class="admin-sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-icon">🍽️</div>
-        <div>
-          <div class="brand-text">Canteen Admin</div>
-          <small>Staff Panel</small>
+  <!-- ============ ADMIN LOGIN VIEW ============ -->
+  <main class="view" id="view-adminLogin">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
+        <h2 class="auth-title">Admin Access</h2>
+        <p class="auth-subtitle">Enter the admin password to continue</p>
+        <div id="adminLoginAlert"></div>
+        <div class="form-group">
+          <label class="form-label" for="adminPass">Password</label>
+          <input id="adminPass" type="password" class="form-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()">
+        </div>
+        <button class="btn btn-primary w-full" onclick="doAdminLogin()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Login
+        </button>
+        <a href="#home" class="auth-back" onclick="navigate('home')">← Back to Menu</a>
       </div>
-      <nav class="sidebar-nav">
-        <a class="sidebar-link active" data-tab="dashboard" onclick="showAdminTab('dashboard')">📊 Dashboard</a>
-        <a class="sidebar-link" data-tab="food" onclick="showAdminTab('food')">🍽️ Food Management</a>
-        <a class="sidebar-link" data-tab="stock" onclick="showAdminTab('stock')">📦 Stock Management</a>
-        <a class="sidebar-link danger" onclick="logoutAdmin()">🚪 Logout</a>
-      </nav>
-    </aside>
-    <main class="admin-main">
-      <div id="adminTabContent"></div>
-    </main>
-  </div>
-</div>
-
-<!-- ============ FOOTER ============ -->
-<footer class="footer" id="mainFooter">
-  <div class="container d-flex justify-content-between align-items-center flex-wrap">
-    <div>
-      <p class="mb-1">© 2026 Campus Bites Canteen.</p>
-      <p class="mb-0 text-muted small">Digital Menu Card Demo</p>
     </div>
-    <div>
-      <a href="#" onclick="showView('adminLogin');return false" class="text-muted small">Admin Login</a>
-    </div>
-  </div>
-</footer>
+  </main>
 
-<script src="app.js"></script>
+  <!-- ============ ADMIN DASHBOARD VIEW ============ -->
+  <main class="view" id="view-admin">
+    <div class="admin-layout">
+      <button class="admin-mobile-toggle" onclick="toggleAdminSidebar()" aria-label="Toggle sidebar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"/>
+          </svg>
+          <div>
+            <div class="sidebar-title">Campus Bites</div>
+            <small class="sidebar-sub">Admin Panel</small>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="sidebar-link active" data-tab="dashboard" onclick="showAdminTab('dashboard')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+          <a class="sidebar-link" data-tab="food" onclick="showAdminTab('food')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3"/></svg>
+            Food Items
+          </a>
+          <a class="sidebar-link" data-tab="categories" onclick="showAdminTab('categories')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Categories
+          </a>
+          <a class="sidebar-link" data-tab="stock" onclick="showAdminTab('stock')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            Stock
+          </a>
+          <div class="sidebar-divider"></div>
+          <a class="sidebar-link sidebar-link-danger" onclick="logoutAdmin()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </a>
+        </nav>
+      </aside>
+      <main class="admin-main">
+        <div id="adminTabContent"></div>
+      </main>
+    </div>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer" id="mainFooter">
+    <div class="container footer-content">
+      <div>
+        <p class="footer-brand">Campus Bites Canteen</p>
+        <p class="footer-note">Digital Menu Card &copy; 2026</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
 </body>
 </html>
