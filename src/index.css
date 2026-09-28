@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #F1F2ED;
+    --foreground: #241A12;
+    --primary: #4A6741;
+    --primary-foreground: #FFFFFF;
+    --muted: #E4E6DC;
+    --muted-foreground: #4A4438;
+    --border: #D3D6C8;
+    --success: #5B8C5A;
+    --success-foreground: #FFFFFF;
+    --destructive: #A83A2C;
+    --destructive-foreground: #FFFFFF;
+    --accent: #C99A2E;
+    --accent-foreground: #FFFFFF;
+    --warning: #B15A1E;
+    --warning-foreground: #FFFFFF;
+    
+    --card: #F1F2ED;
+    --card-foreground: #241A12;
+    --popover: #F1F2ED;
+    --popover-foreground: #241A12;
+    --secondary: #E4E6DC;
+    --secondary-foreground: #4A4438;
+    --input: #D3D6C8;
+    --ring: #4A6741;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: #1C1712;
+    --foreground: #EDEAE2;
+    --primary: #6B9160;
+    --primary-foreground: #1C1712;
+    --muted: #2A231C;
+    --muted-foreground: #B8AF9F;
+    --border: #3A3128;
+    --success: #6FA36C;
+    --success-foreground: #FFFFFF;
+    --destructive: #C24E3A;
+    --destructive-foreground: #FFFFFF;
+    --accent: #E0B646;
+    --accent-foreground: #1C1712;
+    --warning: #D68A4C;
+    --warning-foreground: #1C1712;
+    
+    --card: #1C1712;
+    --card-foreground: #EDEAE2;
+    --popover: #1C1712;
+    --popover-foreground: #EDEAE2;
+    --secondary: #2A231C;
+    --secondary-foreground: #B8AF9F;
+    --input: #3A3128;
+    --ring: #6B9160;
+  }
+
+  html {
+    font-size: 115%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  
+  * {
+    @apply border-border;
+  }
+}
+
+@layer utilities {
+  .fade-in {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 250ms ease-out, transform 250ms ease-out;
+  }
+  .fade-in.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in {
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+}
