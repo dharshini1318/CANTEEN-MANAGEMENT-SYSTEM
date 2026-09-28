@@ -3,6 +3,7 @@ import { useCart } from '../contexts/CartContext'
 import { useTheme } from './ThemeProvider'
 import { Button } from './ui/button'
 import { Sun, Moon, ShoppingBag, Menu } from 'lucide-react'
+import { Logo } from './ui/logo'
 
 export function Navbar() {
   const { totalItems } = useCart()
@@ -14,8 +15,8 @@ export function Navbar() {
       <div className={`w-full mx-auto px-4 md:px-8 xl:px-12 h-14 flex items-center ${location.pathname === '/' ? 'justify-end pointer-events-auto' : 'justify-between'}`}>
         {location.pathname !== '/' && (
           <div className="flex items-center gap-6">
-            <Link to="/" className="font-fraunces font-bold text-xl tracking-tight flex items-center gap-2">
-              CampusBite
+            <Link to="/" className="flex items-center gap-2">
+              <Logo className="h-14 md:h-16 w-auto drop-shadow-sm" />
             </Link>
           </div>
         )}

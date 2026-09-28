@@ -8,6 +8,8 @@ import { Input } from '../components/ui/input'
 import { Skeleton } from '../components/ui/skeleton'
 import { Search, X, Minus, Plus } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Logo } from '../components/ui/logo'
+import { DotOrbBackground } from '../components/ui/dot-orb'
 
 const slogans = [
   "Fuel your day, the South Indian way.",
@@ -185,37 +187,44 @@ export function MenuPage() {
     <div className="min-h-screen bg-background pb-24">
       {/* Hero Section */}
       <section 
-        className="w-full py-28 px-4 bg-gradient-to-b from-primary/5 via-background to-background relative overflow-hidden flex flex-col items-center justify-center text-center isolate"
+        className="w-full py-10 md:py-12 px-4 relative flex flex-col items-center justify-center text-center isolate"
         style={{
           opacity: Math.max(0, 1 - scrollY / 400),
           transform: `translateY(${scrollY * 0.4}px)`,
         }}
       >
-        {/* Subtle decorative blurs with reduced motion support */}
-        <div className="absolute top-[-20%] left-[-10%] w-[40rem] h-[40rem] bg-primary/10 rounded-full blur-[120px] -z-10 mix-blend-multiply dark:mix-blend-screen pointer-events-none motion-safe:animate-pulse"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[40rem] h-[40rem] bg-accent/10 rounded-full blur-[120px] -z-10 mix-blend-multiply dark:mix-blend-screen pointer-events-none motion-safe:animate-pulse" style={{ animationDelay: '2s' }}></div>
-        
-        <h1 className="font-fraunces font-bold tracking-tight text-balance text-6xl sm:text-7xl md:text-8xl text-foreground mb-6 drop-shadow-sm relative z-10 flex flex-col md:flex-row items-center justify-center gap-4">
-          {cafeteriaName}
-        </h1>
+        {/* Interactive Orb Background fading into the menu */}
+        <div 
+          className="absolute inset-0 -z-10 pointer-events-auto overflow-hidden h-[150%]"
+          style={{ 
+            maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', 
+            WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' 
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent"></div>
+          <DotOrbBackground className="w-full h-full opacity-60" />
+        </div>
+        <div className="mb-0 -mt-4 drop-shadow-sm relative z-10 flex flex-col md:flex-row items-center justify-center gap-4 hover:scale-105 transition-transform duration-700">
+          <Logo className="h-32 sm:h-40 md:h-56 lg:h-64 w-auto" />
+        </div>
         <div className="relative z-10 w-full"><AnimatedSlogan /></div>
         
-        <div className="mt-14 w-full max-w-xl relative z-10 mx-auto">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-foreground/50 z-20 pointer-events-none" />
+        <div className="mt-4 w-full max-w-xl relative z-10 mx-auto">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground/50 z-20 pointer-events-none" />
           <Input 
             placeholder="Search your cravings..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-14 pr-14 bg-background text-foreground min-h-[64px] text-lg rounded-full shadow-lg border-border/50 focus-visible:ring-primary/40 focus-visible:ring-offset-2 transition-all hover:shadow-xl w-full relative z-10"
+            className="pl-12 pr-12 bg-background text-foreground min-h-[52px] text-base rounded-full shadow-md border-border/50 focus-visible:ring-primary/40 focus-visible:ring-offset-2 transition-all hover:shadow-lg w-full"
             aria-label="Search menu"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition-colors active:scale-95 focus-visible:ring-2 focus-visible:ring-ring z-20"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full hover:bg-muted transition-colors active:scale-95 focus-visible:ring-2 focus-visible:ring-ring z-20"
               aria-label="Clear search"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>

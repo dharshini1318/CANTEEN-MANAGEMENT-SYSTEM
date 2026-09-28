@@ -6,6 +6,7 @@ import { useTheme } from '../ThemeProvider'
 import { Button } from '../../components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../../components/ui/sheet'
 import { Menu, LogOut, LayoutDashboard, ShoppingBag, Receipt, Utensils, Users, BarChart3, Settings, AlertCircle, Sun, Moon } from 'lucide-react'
+import { Logo } from '../ui/logo'
 
 const navItems = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
@@ -76,7 +77,7 @@ export function AdminLayout() {
       <aside className="hidden md:flex flex-col w-64 border-r bg-card sticky top-0 h-screen shrink-0">
         <div className="h-16 flex items-center justify-between px-6 border-b">
           <div className="font-bold text-lg tracking-tight flex items-center gap-2">
-            CampusBite Admin
+            <Logo className="h-5 w-auto" /> Admin
           </div>
         </div>
         <SidebarContent pathname={location.pathname} />
@@ -102,7 +103,7 @@ export function AdminLayout() {
         {/* Mobile Header */}
         <header className="md:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-40">
           <div className="font-bold text-lg tracking-tight flex items-center gap-2">
-            CampusBite
+            <Logo className="h-5 w-auto" />
           </div>
           
           <div className="flex items-center gap-2">

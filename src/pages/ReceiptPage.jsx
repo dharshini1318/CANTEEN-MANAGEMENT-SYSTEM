@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getOrderByToken } from '../services/api'
 import { formatPrice } from '../utils/format'
+import { Logo } from '../components/ui/logo'
 import { Button } from '../components/ui/button'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
@@ -122,7 +123,7 @@ export function ReceiptPage() {
         style={{ color: '#000000', backgroundColor: '#ffffff' }}
       >
         <div className="text-center mb-4">
-          <div className="text-xl font-bold">CAMPUSBITE</div>
+          <Logo className="h-8 w-auto mx-auto mb-1" />
           <div>CAMPUS CAFETERIA</div>
         </div>
         

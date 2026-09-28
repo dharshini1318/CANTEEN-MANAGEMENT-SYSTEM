@@ -5,6 +5,7 @@ import { getWorkers } from '../../services/api'
 import { Button } from '../../components/ui/button'
 import { useTheme } from '../ThemeProvider'
 import { Sun, Moon } from 'lucide-react'
+import { Logo } from '../ui/logo'
 
 export function WorkerLayout() {
   const { session, logout } = useAuth()
@@ -28,7 +29,7 @@ export function WorkerLayout() {
       <header className="bg-card border-b px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <div className="font-bold text-lg tracking-tight flex items-center gap-2">
-            CampusBite
+            <Logo className="h-5 w-auto" />
           </div>
           <div className="text-sm font-medium px-2 py-1 bg-muted rounded-md text-muted-foreground hidden sm:block">
             {session.username} ({session.role.replace('_', ' ')})

@@ -8,6 +8,7 @@ import { Skeleton } from '../components/ui/skeleton'
 import { Card } from '../components/ui/card'
 import { useInView } from '../hooks/use-in-view'
 import { ArrowRight } from 'lucide-react'
+import { Logo } from '../components/ui/logo'
 
 function FeaturedMenu() {
   const { ref, isInView } = useInView({ threshold: 0.1, triggerOnce: true })
@@ -161,20 +162,20 @@ export function LandingPage() {
             style={{ transitionDelay: '0ms' }}
           >
           </div>
-          <h1 
-            className={`font-fraunces text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-foreground mb-4 drop-shadow-sm fade-in ${mounted ? 'is-visible' : ''}`}
+          <div 
+            className={`mb-0 -mt-8 drop-shadow-sm fade-in ${mounted ? 'is-visible' : ''}`}
             style={{ transitionDelay: '0ms' }}
           >
-            {cafeteriaName}
-          </h1>
+            <Logo className="h-32 sm:h-40 md:h-56 lg:h-72 w-auto" />
+          </div>
           <h2 
-            className={`font-fraunces text-xl sm:text-2xl md:text-3xl text-foreground/80 mb-3 fade-in ${mounted ? 'is-visible' : ''}`}
+            className={`font-fraunces text-xl sm:text-2xl md:text-3xl text-foreground/80 mb-1 fade-in ${mounted ? 'is-visible' : ''}`}
             style={{ transitionDelay: '120ms' }}
           >
             Fuel your day, the South Indian way.
           </h2>
           <p 
-            className={`text-muted-foreground text-base sm:text-lg mb-10 max-w-lg mx-auto fade-in ${mounted ? 'is-visible' : ''}`}
+            className={`text-muted-foreground text-base sm:text-lg mb-6 max-w-lg mx-auto fade-in ${mounted ? 'is-visible' : ''}`}
             style={{ transitionDelay: '240ms' }}
           >
             Order ahead. Skip the line. Eat fresh.
