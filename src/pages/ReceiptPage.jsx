@@ -123,7 +123,7 @@ export function ReceiptPage() {
         style={{ color: '#000000', backgroundColor: '#ffffff' }}
       >
         <div className="text-center mb-4">
-          <Logo className="h-8 w-auto mx-auto mb-1" />
+          <Logo className="h-24 w-auto mx-auto mb-3" />
           <div>CAMPUS CAFETERIA</div>
         </div>
         
