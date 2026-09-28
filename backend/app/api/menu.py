@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import List
 from datetime import datetime
@@ -7,38 +7,52 @@ from app.db.session import get_db
 from app.models.menu import MenuItem, MenuCategory, MenuSchedule, MenuSpecialOverride, Inventory
 from app.schemas.menu import MenuItemEffective, MenuCategoryResponse, MenuItemUpdate
 from fastapi import HTTPException
+from app.api.deps import get_optional_current_user, get_current_user
+from app.models.user import User
+from typing import List, Optional
 
 router = APIRouter()
 
 @router.get("/", response_model=List[MenuItemEffective])
-def get_menu(admin: bool = False, db: Session = Depends(get_db)):
-    if admin:
-        items = db.query(MenuItem).all()
+def get_menu(db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_optional_current_user)):
+    is_admin = current_user is not None and current_user.role == "ADMIN"
+    
+    query = db.query(MenuItem).options(
+        joinedload(MenuItem.category),
+        joinedload(MenuItem.inventory)
+    )
+    
+    if not is_admin:
+        items = query.filter(MenuItem.is_active == True).all()
     else:
-        items = db.query(MenuItem).filter(MenuItem.is_active == True).all()
+        items = query.all()
     
     today = datetime.now()
     day_of_week = today.weekday() # 0 = Monday
     
+    item_ids = [item.id for item in items]
+    
+    overrides = db.query(MenuSpecialOverride).filter(
+        MenuSpecialOverride.menu_item_id.in_(item_ids),
+        func.date(MenuSpecialOverride.override_date) == today.date()
+    ).all()
+    override_map = {o.menu_item_id: o.is_special for o in overrides}
+    
+    schedules = db.query(MenuSchedule).filter(
+        MenuSchedule.menu_item_id.in_(item_ids),
+        MenuSchedule.day_of_week == day_of_week
+    ).all()
+    schedule_map = {s.menu_item_id: s.is_special for s in schedules}
+    
     result = []
     for item in items:
         # Determine is_special
-        is_special = False
-        # Check override
-        override = db.query(MenuSpecialOverride).filter(
-            MenuSpecialOverride.menu_item_id == item.id,
-            func.date(MenuSpecialOverride.override_date) == today.date()
-        ).first()
-        
-        if override:
-            is_special = override.is_special
+        if item.id in override_map:
+            is_special = override_map[item.id]
+        elif item.id in schedule_map:
+            is_special = schedule_map[item.id]
         else:
-            schedule = db.query(MenuSchedule).filter(
-                MenuSchedule.menu_item_id == item.id,
-                MenuSchedule.day_of_week == day_of_week
-            ).first()
-            if schedule:
-                is_special = schedule.is_special
+            is_special = False
                 
         # Determine availability and remaining
         is_available = True
@@ -73,7 +87,9 @@ def get_categories(db: Session = Depends(get_db)):
     return ["All"] + [c.name for c in categories]
 
 @router.patch("/{item_id}")
-def update_menu_item(item_id: str, update_data: MenuItemUpdate, db: Session = Depends(get_db)):
+def update_menu_item(item_id: str, update_data: MenuItemUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     item = db.query(MenuItem).filter(MenuItem.id == item_id).first()
     if not item:
         # Create it if it doesn't exist (useful since frontend uses generated IDs for new items)

@@ -20,14 +20,16 @@ export function WorkerLayout() {
   }, [session, location.pathname, logout, navigate])
 
   if (!session) {
-    return <Navigate to="/worker/login" replace />
+    return <Navigate to="/worker" replace />
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <header className="bg-card border-b px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <div className="font-bold text-lg tracking-tight">CampusBite</div>
+          <div className="font-bold text-lg tracking-tight flex items-center gap-2">
+            CampusBite
+          </div>
           <div className="text-sm font-medium px-2 py-1 bg-muted rounded-md text-muted-foreground hidden sm:block">
             {session.username} ({session.role.replace('_', ' ')})
           </div>
@@ -47,7 +49,7 @@ export function WorkerLayout() {
             size="sm" 
             onClick={() => {
               logout()
-              navigate('/worker/login')
+              navigate('/worker')
             }}
           >
             Logout
@@ -65,7 +67,7 @@ export function ProtectedWorkerRoute({ allowedRole, children }) {
   const { session } = useAuth()
 
   if (!session) {
-    return <Navigate to="/worker/login" replace />
+    return <Navigate to="/worker" replace />
   }
 
   if (session.role !== allowedRole) {

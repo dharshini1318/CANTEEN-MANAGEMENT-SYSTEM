@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import random
 import string
 from app.db.session import get_db
@@ -12,6 +12,37 @@ from app.api.deps import get_current_user
 from app.models.user import User
 
 router = APIRouter()
+
+def check_and_expire_order(order: Order, db: Session) -> bool:
+    if order.payment_status == PaymentStatus.PENDING and order.expires_at and datetime.now(timezone.utc) > order.expires_at.replace(tzinfo=timezone.utc):
+        order.payment_status = PaymentStatus.EXPIRED
+        order.order_status = OrderStatus.CANCELLED
+        order.cancelled_at = order.expires_at
+        if order.payment:
+            order.payment.status = PaymentStatus.EXPIRED
+            
+        # Restore inventory
+        for item in order.items:
+            menu_item = db.query(MenuItem).filter(MenuItem.id == item.menu_item_id).first()
+            if menu_item and menu_item.inventory_mode == "QUANTITY_TRACKED" and menu_item.inventory:
+                menu_item.inventory.quantity += item.quantity
+                txn = InventoryTransaction(
+                    menu_item_id=menu_item.id,
+                    change_amount=item.quantity,
+                    reason="ORDER_EXPIRED",
+                    created_by="system"
+                )
+                db.add(txn)
+                
+        status_hist = OrderStatusHistory(
+            order_id=order.id,
+            status=OrderStatus.CANCELLED,
+            changed_by="system"
+        )
+        db.add(status_hist)
+        db.commit()
+        return True
+    return False
 
 def generate_token():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=13))
@@ -118,9 +149,11 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
 
 @router.get("/{token}", response_model=OrderResponse)
 def get_order(token: str, db: Session = Depends(get_db)):
-    order = db.query(Order).filter(Order.token == token).first()
+    order = db.query(Order).options(joinedload(Order.payment), joinedload(Order.items)).filter(Order.token == token).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+        
+    check_and_expire_order(order, db)
         
     return {
         "token": order.token,
@@ -143,10 +176,13 @@ def get_order(token: str, db: Session = Depends(get_db)):
     }
 
 @router.get("/", response_model=List[OrderResponse])
-def get_orders(db: Session = Depends(get_db)):
-    orders = db.query(Order).order_by(Order.created_at.desc()).all()
+def get_orders(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["ADMIN", "CASHIER", "FOOD_SERVICE"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    orders = db.query(Order).options(joinedload(Order.payment), joinedload(Order.items)).order_by(Order.created_at.desc()).all()
     result = []
     for order in orders:
+        check_and_expire_order(order, db)
         result.append({
             "token": order.token,
             "orderNumber": order.order_number,
@@ -169,7 +205,9 @@ def get_orders(db: Session = Depends(get_db)):
     return result
 
 @router.patch("/{token}/status")
-def update_order_status(token: str, status_update: OrderStatusUpdate, db: Session = Depends(get_db)):
+def update_order_status(token: str, status_update: OrderStatusUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["admin", "worker"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
     order = db.query(Order).filter(Order.token == token).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")

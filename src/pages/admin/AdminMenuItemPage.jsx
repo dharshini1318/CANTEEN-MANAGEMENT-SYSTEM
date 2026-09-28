@@ -48,7 +48,7 @@ export function AdminMenuItemPage() {
   const isNew = id === 'new'
 
   useEffect(() => {
-    getCategories().then(cats => setCategories(cats.map(c => c.name || c).filter(c => c !== 'All')))
+    getCategories().then(cats => setCategories(cats.map(c => c.name || c).filter(c => c !== 'All'))).catch(console.error)
     
     if (isNew) {
       setItem({
@@ -68,15 +68,22 @@ export function AdminMenuItemPage() {
       setPriceStr('0')
       setLoading(false)
     } else {
-      getMenuItem(id).then(data => {
-        if (!data) {
-          navigate('/admin/menu')
-          return
+      const fetchData = async () => {
+        try {
+          const data = await getMenuItem(id)
+          if (!data) {
+            navigate('/admin/menu')
+            return
+          }
+          setItem(data)
+          setPriceStr((data.price / 100).toString())
+        } catch (err) {
+          console.error("Failed to fetch menu item:", err)
+        } finally {
+          setLoading(false)
         }
-        setItem(data)
-        setPriceStr((data.price / 100).toString())
-        setLoading(false)
-      })
+      }
+      fetchData()
     }
   }, [id, navigate, isNew])
 

@@ -1,7 +1,7 @@
 // src/services/api.js
 // Client API service for CampusBite
 
-const API_URL = "http://localhost:8000/api"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api"
 
 async function fetchAPI(endpoint, options = {}) {
   // If we need auth, we should include credentials or headers
@@ -21,6 +21,9 @@ async function fetchAPI(endpoint, options = {}) {
   })
   
   if (!response.ok) {
+    if (response.status === 401) {
+      window.dispatchEvent(new Event('unauthorized'))
+    }
     let message = "An error occurred"
     try {
       const errData = await response.json()
@@ -41,7 +44,7 @@ export async function getMenu() {
 }
 
 export async function getAdminMenu() {
-  return fetchAPI("/menu/?admin=true")
+  return fetchAPI("/menu/")
 }
 
 export async function getMenuItem(id) {
@@ -139,22 +142,49 @@ export function getNextOpening() {
   return 'today at 08:00'
 }
 
-export function logAuditEvent(actor, action, entity, details = {}) {
-  console.log(`[AUDIT] ${actor} did ${action} on ${entity}`, details)
+export async function logAuditEvent(actor, action, entity, details = {}) {
+  try {
+    await fetchAPI("/audit/", {
+      method: "POST",
+      body: JSON.stringify({ actor, action, entity, details })
+    })
+  } catch (err) {
+    console.error("[AUDIT ERROR]", err)
+  }
 }
 
-export function getAuditLogs() {
-  return []
+export async function getAuditLogs() {
+  return fetchAPI("/audit/")
 }
 
 // ----------------------------------------------------
-// Workers Management (MOCK fallback)
+// Workers Management
 // ----------------------------------------------------
 
-export function getWorkers() {
-  return []
+export async function getWorkers() {
+  return fetchAPI("/users/")
 }
-export function saveWorkers(workers) {}
+export async function createWorker(workerData) {
+  return fetchAPI("/users/", {
+    method: "POST",
+    body: JSON.stringify(workerData)
+  })
+}
+export async function toggleWorkerStatus(userId) {
+  return fetchAPI(`/users/${userId}/status`, {
+    method: "PATCH"
+  })
+}
+export async function changeWorkerRole(userId, newRole) {
+  return fetchAPI(`/users/${userId}/role?new_role=${newRole}`, {
+    method: "PATCH"
+  })
+}
+export async function resetWorkerPassword(userId, newPassword) {
+  return fetchAPI(`/users/${userId}/password?new_password=${newPassword}`, {
+    method: "PATCH"
+  })
+}
 
 // ----------------------------------------------------
 // Daily Closing Management (MOCK fallback)

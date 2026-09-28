@@ -24,7 +24,7 @@ export function AdminTransactionsPage() {
   const [statusFilter, setStatusFilter] = useState('ALL')
 
   useEffect(() => {
-    getAllOrders().then(setOrders)
+    getAllOrders().then(setOrders).catch(console.error)
   }, [])
 
   const filteredOrders = useMemo(() => {

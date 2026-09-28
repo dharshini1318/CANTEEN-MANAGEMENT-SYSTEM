@@ -32,8 +32,19 @@ export function AdminMenuPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    getAdminMenu().then(setMenu)
-    getCategories().then(setCategories)
+    const fetchData = async () => {
+      try {
+        const [menuData, categoriesData] = await Promise.all([
+          getAdminMenu(),
+          getCategories()
+        ])
+        setMenu(menuData)
+        setCategories(categoriesData)
+      } catch (err) {
+        console.error("Failed to fetch menu data:", err)
+      }
+    }
+    fetchData()
   }, [])
 
   const filteredMenu = useMemo(() => {
@@ -49,9 +60,14 @@ export function AdminMenuPage() {
   }, [menu, search, categoryFilter])
 
   const toggleActive = async (item) => {
-    const updated = { ...item, is_active: !item.is_active }
-    await saveMenuItem(updated)
-    setMenu(menu.map(m => m.id === item.id ? updated : m))
+    try {
+      const updated = { ...item, is_active: !item.is_active }
+      await saveMenuItem(updated)
+      setMenu(menu.map(m => m.id === item.id ? updated : m))
+    } catch (err) {
+      console.error("Failed to toggle active state:", err)
+      alert("Failed to save changes. Please try again.")
+    }
   }
 
   return (

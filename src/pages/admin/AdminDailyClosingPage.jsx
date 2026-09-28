@@ -15,7 +15,7 @@ export function AdminDailyClosingPage() {
   const [correctionAmount, setCorrectionAmount] = useState('')
 
   useEffect(() => {
-    getAllOrders().then(setOrders)
+    getAllOrders().then(setOrders).catch(console.error)
     setClosings(getClosings())
   }, [])
 

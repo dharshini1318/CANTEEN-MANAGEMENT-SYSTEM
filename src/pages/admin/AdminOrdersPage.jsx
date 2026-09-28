@@ -122,7 +122,7 @@ export function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState(null)
 
   useEffect(() => {
-    getAllOrders().then(setOrders)
+    getAllOrders().then(setOrders).catch(console.error)
   }, [])
 
   const filteredOrders = useMemo(() => {

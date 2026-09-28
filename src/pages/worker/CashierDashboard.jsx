@@ -139,8 +139,12 @@ export function CashierDashboard() {
   const { session } = useAuth()
 
   const fetchOrders = async () => {
-    const data = await getAllOrders()
-    setOrders(data)
+    try {
+      const data = await getAllOrders()
+      setOrders(data)
+    } catch (err) {
+      console.error("Failed to fetch orders:", err)
+    }
   }
 
   useEffect(() => {

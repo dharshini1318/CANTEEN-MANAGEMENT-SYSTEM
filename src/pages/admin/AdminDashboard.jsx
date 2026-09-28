@@ -19,8 +19,8 @@ export function AdminDashboard() {
   const [menu, setMenu] = useState([])
 
   useEffect(() => {
-    getAllOrders().then(setOrders)
-    getAdminMenu().then(setMenu)
+    getAllOrders().then(setOrders).catch(console.error)
+    getAdminMenu().then(setMenu).catch(console.error)
   }, [])
 
   // Calculate metrics for Today

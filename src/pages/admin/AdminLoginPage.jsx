@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { loginWorker } from '../../services/api'
@@ -11,12 +11,14 @@ export function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { session, login } = useAuth()
+  const { session, login, logout } = useAuth()
   const navigate = useNavigate()
 
-  if (session && session.role === 'ADMIN') {
-    return <Navigate to="/admin/dashboard" replace />
-  }
+  useEffect(() => {
+    if (session) {
+      logout()
+    }
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -76,10 +78,6 @@ export function AdminLoginPage() {
           </Button>
         </form>
 
-        <div className="text-xs text-muted-foreground text-center pt-4 border-t border-border/50">
-          <p>Demo account:</p>
-          <p className="mt-1">admin / admin123</p>
-        </div>
       </Card>
     </div>
   )

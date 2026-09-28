@@ -24,7 +24,7 @@ function OrderCard({ order, onComplete }) {
   const time = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date(order.createdAt))
 
   return (
-    <div className={`bg-card border rounded-lg p-5 mb-4 transition-colors ${!isPreparing ? 'opacity-70' : ''}`}>
+    <div className={`bg-card border rounded-2xl p-6 transition-colors shadow-sm ${!isPreparing ? 'opacity-70' : ''}`}>
       <div className="flex justify-between items-start mb-4 pb-4 border-b border-border/50">
         <div>
           <div className="font-mono text-lg font-bold mb-1">{order.orderNumber}</div>
@@ -69,8 +69,12 @@ export function FoodServiceDashboard() {
   const [view, setView] = useState('PREPARING') // PREPARING or COMPLETED
 
   const fetchOrders = async () => {
-    const data = await getAllOrders()
-    setOrders(data)
+    try {
+      const data = await getAllOrders()
+      setOrders(data)
+    } catch (err) {
+      console.error("Failed to fetch orders:", err)
+    }
   }
 
   useEffect(() => {
@@ -89,7 +93,7 @@ export function FoodServiceDashboard() {
   }, [orders, view])
 
   return (
-    <div className="max-w-2xl mx-auto py-6">
+    <div className="max-w-7xl mx-auto py-6 px-4 md:px-6">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Food Service</h1>
         
@@ -113,9 +117,9 @@ export function FoodServiceDashboard() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredOrders.length === 0 ? (
-          <div className="py-16 text-center border rounded-lg bg-card/50">
+          <div className="md:col-span-2 py-16 text-center border rounded-2xl bg-card/50">
             <p className="text-lg font-medium text-muted-foreground">Queue is empty</p>
             <p className="text-sm text-muted-foreground mt-1">No {view.toLowerCase()} orders right now.</p>
           </div>

@@ -1,8 +1,10 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 import os
 import uuid
 import shutil
 from pathlib import Path
+from app.api.deps import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -11,7 +13,10 @@ UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 @router.post("/")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
         

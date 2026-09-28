@@ -51,7 +51,7 @@ function AppRoutes() {
         </Route>
 
         {/* Worker Routes */}
-        <Route path="/worker/login" element={<WorkerLoginPage />} />
+        <Route path="/worker" element={<WorkerLoginPage />} />
         <Route element={<WorkerLayout />}>
           <Route 
             path="/worker/cashier" 
@@ -72,7 +72,7 @@ function AppRoutes() {
         </Route>
 
         {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin" element={<AdminLoginPage />} />
         <Route element={<AdminLayout />}>
           <Route 
             path="/admin/dashboard" 

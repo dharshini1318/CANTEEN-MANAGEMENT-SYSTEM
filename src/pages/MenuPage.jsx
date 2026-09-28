@@ -195,22 +195,24 @@ export function MenuPage() {
         <div className="absolute top-[-20%] left-[-10%] w-[40rem] h-[40rem] bg-primary/10 rounded-full blur-[120px] -z-10 mix-blend-multiply dark:mix-blend-screen pointer-events-none motion-safe:animate-pulse"></div>
         <div className="absolute bottom-[-20%] right-[-10%] w-[40rem] h-[40rem] bg-accent/10 rounded-full blur-[120px] -z-10 mix-blend-multiply dark:mix-blend-screen pointer-events-none motion-safe:animate-pulse" style={{ animationDelay: '2s' }}></div>
         
-        <h1 className="font-fraunces font-bold tracking-tight text-balance text-6xl sm:text-7xl md:text-8xl text-foreground mb-6 drop-shadow-sm relative z-10">{cafeteriaName}</h1>
+        <h1 className="font-fraunces font-bold tracking-tight text-balance text-6xl sm:text-7xl md:text-8xl text-foreground mb-6 drop-shadow-sm relative z-10 flex flex-col md:flex-row items-center justify-center gap-4">
+          {cafeteriaName}
+        </h1>
         <div className="relative z-10 w-full"><AnimatedSlogan /></div>
         
-        <div className="mt-14 w-full max-w-xl relative z-10">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
+        <div className="mt-14 w-full max-w-xl relative z-10 mx-auto">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-foreground/50 z-20 pointer-events-none" />
           <Input 
             placeholder="Search your cravings..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-16 pr-14 bg-card/80 backdrop-blur-2xl min-h-[64px] text-lg rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-border/50 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:border-primary/60 transition-all hover:shadow-[0_12px_40px_rgb(0,0,0,0.12)]"
+            className="pl-14 pr-14 bg-background text-foreground min-h-[64px] text-lg rounded-full shadow-lg border-border/50 focus-visible:ring-primary/40 focus-visible:ring-offset-2 transition-all hover:shadow-xl w-full relative z-10"
             aria-label="Search menu"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition-colors active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition-colors active:scale-95 focus-visible:ring-2 focus-visible:ring-ring z-20"
               aria-label="Clear search"
             >
               <X className="h-5 w-5" />

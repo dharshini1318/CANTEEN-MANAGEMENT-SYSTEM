@@ -10,7 +10,7 @@ export function AdminAuditLogsPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    setLogs(getAuditLogs())
+    getAuditLogs().then(setLogs).catch(console.error)
   }, [])
 
   const filteredLogs = useMemo(() => {
@@ -30,11 +30,12 @@ export function AdminAuditLogsPage() {
   const actions = Array.from(new Set(logs.map(l => l.action)))
 
   const formatDetails = (log) => {
-    if (log.action === 'CONFIRM_PAYMENT') return `${log.method} • ${formatPrice(log.amount)}`
-    if (log.action === 'CREATE_WORKER') return `Role: ${log.role}`
-    if (log.action === 'CHANGE_WORKER_ROLE') return `${log.oldRole} ➔ ${log.newRole}`
-    if (log.action === 'CLOSE_DAY') return `Total Sales: ${formatPrice(log.totalSales)}`
-    if (log.action === 'ADD_CORRECTION') return `${formatPrice(log.amount)} (${log.reason})`
+    const d = log.details || {}
+    if (log.action === 'CONFIRM_PAYMENT') return `${d.method || ''} • ${formatPrice(d.amount || 0)}`
+    if (log.action === 'CREATE_WORKER') return `Role: ${d.role || ''}`
+    if (log.action === 'CHANGE_WORKER_ROLE') return `${d.oldRole || ''} ➔ ${d.newRole || ''}`
+    if (log.action === 'CLOSE_DAY') return `Total Sales: ${formatPrice(d.totalSales || 0)}`
+    if (log.action === 'ADD_CORRECTION') return `${formatPrice(d.amount || 0)} (${d.reason || ''})`
     return '—'
   }
 
@@ -88,7 +89,7 @@ export function AdminAuditLogsPage() {
                 filteredLogs.map(log => (
                   <tr key={log.id} className="hover:bg-muted/30">
                     <td className="px-6 py-3 text-muted-foreground text-xs">
-                      {new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(log.timestamp))}
+                      {new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(log.created_at || log.timestamp))}
                     </td>
                     <td className="px-6 py-3">
                       <span className="bg-secondary text-secondary-foreground px-2 py-0.5 rounded text-xs font-medium">{log.actor}</span>

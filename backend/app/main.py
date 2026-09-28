@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.api import auth, menu, orders, upload
+from app.api import auth, menu, orders, upload, users, audit
 from app.core.config import settings
 import os
 
@@ -20,6 +20,8 @@ app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["aut
 app.include_router(menu.router, prefix=f"{settings.API_V1_STR}/menu", tags=["menu"])
 app.include_router(orders.router, prefix=f"{settings.API_V1_STR}/orders", tags=["orders"])
 app.include_router(upload.router, prefix=f"{settings.API_V1_STR}/upload", tags=["upload"])
+app.include_router(users.router, prefix=f"{settings.API_V1_STR}/users", tags=["users"])
+app.include_router(audit.router, prefix=f"{settings.API_V1_STR}/audit", tags=["audit"])
 
 # Ensure uploads directory exists
 os.makedirs("uploads", exist_ok=True)

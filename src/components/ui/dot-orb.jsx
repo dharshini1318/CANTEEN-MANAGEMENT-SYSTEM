@@ -24,14 +24,15 @@ export function DotOrbBackground({ className }) {
         : { dot: 'rgba(40, 60, 35, ', glow: 'rgba(40, 60, 35, ', line: 'rgba(74, 68, 56, ' };
     };
 
-    const numParticles = Math.min(1000, Math.floor(window.innerWidth * 0.7));
+    const numParticles = Math.min(900, Math.floor(window.innerWidth * 0.65));
     const orbRadius = Math.max(window.innerWidth, window.innerHeight) * 0.6;
     
-    let rotationX = 0;
-    let rotationY = 0;
-    let targetRotationX = 0;
-    let targetRotationY = 0;
-    let autoRotation = 0;
+    let autoRotY = 0;
+    let tiltX = 0;
+    let tiltY = 0;
+    let targetTiltX = 0;
+    let targetTiltY = 0;
+    let mouseTimeout;
 
     const resize = () => {
       width = window.innerWidth;
@@ -64,14 +65,26 @@ export function DotOrbBackground({ className }) {
       mouse.x = e.clientX - width / 2;
       mouse.y = e.clientY - height / 2;
       mouse.active = true;
-      targetRotationX = mouse.y * 0.0015;
-      targetRotationY = mouse.x * 0.0015;
+      targetTiltX = mouse.y * 0.0015;
+      targetTiltY = mouse.x * 0.0015;
+
+      clearTimeout(mouseTimeout);
+      mouseTimeout = setTimeout(() => {
+        mouse.active = false;
+        autoRotY += tiltY;
+        tiltY = 0;
+        targetTiltY = 0;
+        targetTiltX = 0;
+      }, 300);
     };
 
     const onMouseLeave = () => {
+      clearTimeout(mouseTimeout);
       mouse.active = false;
-      targetRotationX = 0;
-      targetRotationY = 0;
+      autoRotY += tiltY;
+      tiltY = 0;
+      targetTiltY = 0;
+      targetTiltX = 0;
     };
 
     const onTouchMove = (e) => {
@@ -79,15 +92,27 @@ export function DotOrbBackground({ className }) {
         mouse.x = e.touches[0].clientX - width / 2;
         mouse.y = e.touches[0].clientY - height / 2;
         mouse.active = true;
-        targetRotationX = mouse.y * 0.003;
-        targetRotationY = mouse.x * 0.003;
+        targetTiltX = mouse.y * 0.003;
+        targetTiltY = mouse.x * 0.003;
+
+        clearTimeout(mouseTimeout);
+        mouseTimeout = setTimeout(() => {
+          mouse.active = false;
+          autoRotY += tiltY;
+          tiltY = 0;
+          targetTiltY = 0;
+          targetTiltX = 0;
+        }, 300);
       }
     };
 
     const onTouchEnd = () => {
+      clearTimeout(mouseTimeout);
       mouse.active = false;
-      targetRotationX = 0;
-      targetRotationY = 0;
+      autoRotY += tiltY;
+      tiltY = 0;
+      targetTiltY = 0;
+      targetTiltX = 0;
     };
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
@@ -99,13 +124,17 @@ export function DotOrbBackground({ className }) {
       ctx.clearRect(0, 0, width, height);
       const colors = getThemeColor();
 
-      // Smooth rotation easing
-      rotationX += (targetRotationX - rotationX) * 0.04;
-      rotationY += (targetRotationY - rotationY) * 0.04;
+      // Smooth rotation easing for tilt
+      tiltX += (targetTiltX - tiltX) * 0.04;
+      tiltY += (targetTiltY - tiltY) * 0.04;
       
-      // Auto-rotate slowly
-      autoRotation += 0.003;
-      const effectiveRotY = rotationY + (mouse.active ? 0 : autoRotation);
+      // Auto-rotate slowly when inactive
+      if (!mouse.active) {
+        autoRotY += 0.003;
+      }
+      
+      const finalRotX = tiltX;
+      const finalRotY = autoRotY + tiltY;
 
       const cx = width / 2;
       const cy = height / 2;
@@ -115,12 +144,12 @@ export function DotOrbBackground({ className }) {
       const projected = [];
       for (const p of particles) {
         // Rotate around X axis
-        const y1 = p.baseY * Math.cos(rotationX) - p.baseZ * Math.sin(rotationX);
-        const z1 = p.baseY * Math.sin(rotationX) + p.baseZ * Math.cos(rotationX);
+        const y1 = p.baseY * Math.cos(finalRotX) - p.baseZ * Math.sin(finalRotX);
+        const z1 = p.baseY * Math.sin(finalRotX) + p.baseZ * Math.cos(finalRotX);
         
         // Rotate around Y axis
-        const x2 = p.baseX * Math.cos(effectiveRotY) + z1 * Math.sin(effectiveRotY);
-        const z2 = -p.baseX * Math.sin(effectiveRotY) + z1 * Math.cos(effectiveRotY);
+        const x2 = p.baseX * Math.cos(finalRotY) + z1 * Math.sin(finalRotY);
+        const z2 = -p.baseX * Math.sin(finalRotY) + z1 * Math.cos(finalRotY);
         
         let fx = x2, fy = y1;
         

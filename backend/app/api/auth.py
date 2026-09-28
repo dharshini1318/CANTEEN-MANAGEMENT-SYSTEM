@@ -45,3 +45,8 @@ def logout(response: Response):
 @router.get("/me", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+@router.get("/debug")
+def debug_db(db: Session = Depends(get_db)):
+    users = db.query(User).all()
+    return {"users": [{"username": u.username, "hash": u.hashed_password} for u in users]}

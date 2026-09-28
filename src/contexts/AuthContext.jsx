@@ -12,21 +12,30 @@ export function AuthProvider({ children }) {
     }
   })
 
+  const logout = () => {
+    setSession(null)
+    sessionStorage.removeItem('access_token')
+  }
+
   useEffect(() => {
     if (session) {
       sessionStorage.setItem('campusbite_worker_session', JSON.stringify(session))
     } else {
       sessionStorage.removeItem('campusbite_worker_session')
     }
+
+    const handleUnauthorized = () => {
+      logout()
+    }
+    window.addEventListener('unauthorized', handleUnauthorized)
+    
+    return () => {
+      window.removeEventListener('unauthorized', handleUnauthorized)
+    }
   }, [session])
 
   const login = (userData) => {
     setSession(userData)
-  }
-
-  const logout = () => {
-    setSession(null)
-    sessionStorage.removeItem('access_token')
   }
 
   return (

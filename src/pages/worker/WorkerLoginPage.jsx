@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { loginWorker } from '../../services/api'
@@ -11,13 +11,15 @@ export function WorkerLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { session, login } = useAuth()
+  const { session, login, logout } = useAuth()
   const navigate = useNavigate()
 
-  if (session) {
-    const fallback = session.role === 'CASHIER' ? '/worker/cashier' : '/worker/food-service'
-    return <Navigate to={fallback} replace />
-  }
+  useEffect(() => {
+    // Clear session whenever login page is opened to force credential prompt
+    if (session) {
+      logout()
+    }
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -74,11 +76,6 @@ export function WorkerLoginPage() {
           </Button>
         </form>
 
-        <div className="text-xs text-muted-foreground text-center pt-4 border-t border-border/50">
-          <p>Demo accounts:</p>
-          <p className="mt-1">cashier1 / cashier123</p>
-          <p >foodservice1 / foodservice123</p>
-        </div>
       </Card>
     </div>
   )

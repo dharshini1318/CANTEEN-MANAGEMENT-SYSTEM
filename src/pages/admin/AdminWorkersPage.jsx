@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getWorkers, saveWorkers, logAuditEvent } from '../../services/api'
+import { getWorkers, createWorker, toggleWorkerStatus, changeWorkerRole, resetWorkerPassword, logAuditEvent } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -20,58 +20,64 @@ export function AdminWorkersPage() {
   const [tempPasswordMsg, setTempPasswordMsg] = useState(null)
 
   useEffect(() => {
-    setWorkers(getWorkers())
+    getWorkers().then(setWorkers).catch(console.error)
   }, [])
 
-  const handleSave = (updatedWorkers) => {
-    saveWorkers(updatedWorkers)
-    setWorkers(updatedWorkers)
-  }
-
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault()
     if (!newUsername.trim() || !newPassword.trim()) return
 
-    const newWorker = {
-      id: `worker-${Date.now()}`,
+    const newWorkerData = {
       username: newUsername.trim(),
       role: newRole,
-      password: newPassword,
-      isActive: true,
-      mustChangePassword: true,
-      createdAt: new Date().toISOString()
+      password: newPassword
     }
 
-    const updated = [...workers, newWorker]
-    handleSave(updated)
-    logAuditEvent(session.username, 'CREATE_WORKER', newWorker.username, { role: newRole })
-    
-    setShowCreate(false)
-    setNewUsername('')
-    setNewPassword('')
-    setNewRole('CASHIER')
+    try {
+      const created = await createWorker(newWorkerData)
+      setWorkers([...workers, created])
+      logAuditEvent(session.username, 'CREATE_WORKER', created.username, { role: newRole })
+      
+      setShowCreate(false)
+      setNewUsername('')
+      setNewPassword('')
+      setNewRole('CASHIER')
+    } catch (err) {
+      alert("Failed to create worker: " + err.message)
+    }
   }
 
-  const toggleStatus = (worker) => {
-    const updated = workers.map(w => w.id === worker.id ? { ...w, isActive: !w.isActive } : w)
-    handleSave(updated)
-    const action = worker.isActive ? 'DISABLE_WORKER' : 'ENABLE_WORKER'
-    logAuditEvent(session.username, action, worker.username)
+  const toggleStatus = async (worker) => {
+    try {
+      const updated = await toggleWorkerStatus(worker.id)
+      setWorkers(workers.map(w => w.id === updated.id ? updated : w))
+      const action = updated.is_active ? 'ENABLE_WORKER' : 'DISABLE_WORKER'
+      logAuditEvent(session.username, action, updated.username)
+    } catch (err) {
+      alert("Failed to toggle status: " + err.message)
+    }
   }
 
-  const changeRole = (worker, newRole) => {
+  const changeRole = async (worker, newRole) => {
     if (worker.role === newRole) return
-    const updated = workers.map(w => w.id === worker.id ? { ...w, role: newRole } : w)
-    handleSave(updated)
-    logAuditEvent(session.username, 'CHANGE_WORKER_ROLE', worker.username, { oldRole: worker.role, newRole })
+    try {
+      const updated = await changeWorkerRole(worker.id, newRole)
+      setWorkers(workers.map(w => w.id === updated.id ? updated : w))
+      logAuditEvent(session.username, 'CHANGE_WORKER_ROLE', worker.username, { oldRole: worker.role, newRole })
+    } catch (err) {
+      alert("Failed to change role: " + err.message)
+    }
   }
 
-  const resetPassword = (worker) => {
+  const resetPassword = async (worker) => {
     const tempPass = Math.random().toString(36).slice(-8)
-    const updated = workers.map(w => w.id === worker.id ? { ...w, password: tempPass, mustChangePassword: true } : w)
-    handleSave(updated)
-    logAuditEvent(session.username, 'RESET_WORKER_PASSWORD', worker.username)
-    setTempPasswordMsg(`Password for ${worker.username} reset to: ${tempPass}`)
+    try {
+      await resetWorkerPassword(worker.id, tempPass)
+      logAuditEvent(session.username, 'RESET_WORKER_PASSWORD', worker.username)
+      setTempPasswordMsg(`Password for ${worker.username} reset to: ${tempPass}`)
+    } catch (err) {
+      alert("Failed to reset password: " + err.message)
+    }
   }
 
   return (
@@ -151,7 +157,7 @@ export function AdminWorkersPage() {
                     </select>
                   </td>
                   <td className="px-6 py-4">
-                    {worker.isActive ? (
+                    {worker.is_active ? (
                       <span className="px-2 py-1 text-[10px] uppercase font-semibold rounded bg-success/10 text-success">Active</span>
                     ) : (
                       <span className="px-2 py-1 text-[10px] uppercase font-semibold rounded bg-muted text-muted-foreground">Disabled</span>
@@ -169,13 +175,13 @@ export function AdminWorkersPage() {
                       </Button>
                       
                       <Button 
-                        variant={worker.isActive ? 'secondary' : 'outline'}
+                        variant={worker.is_active ? 'secondary' : 'outline'}
                         size="sm"
                         disabled={worker.username === session.username} // Can't disable self
                         onClick={() => toggleStatus(worker)}
-                        title={worker.isActive ? "Disable Worker" : "Enable Worker"}
+                        title={worker.is_active ? "Disable Worker" : "Enable Worker"}
                       >
-                        {worker.isActive ? <UserX className="w-4 h-4 text-warning" /> : <UserCheck className="w-4 h-4 text-success" />}
+                        {worker.is_active ? <UserX className="w-4 h-4 text-warning" /> : <UserCheck className="w-4 h-4 text-success" />}
                       </Button>
                     </div>
                   </td>

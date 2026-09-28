@@ -61,12 +61,12 @@ export function AdminLayout() {
   }, [session, location.pathname, logout, navigate])
 
   if (!session || session.role !== 'ADMIN') {
-    return <Navigate to="/admin/login" replace />
+    return <Navigate to="/admin" replace />
   }
 
   const handleLogout = () => {
     logout()
-    navigate('/admin/login')
+    navigate('/admin')
   }
 
   return (
@@ -75,7 +75,9 @@ export function AdminLayout() {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 border-r bg-card sticky top-0 h-screen shrink-0">
         <div className="h-16 flex items-center justify-between px-6 border-b">
-          <div className="font-bold text-lg tracking-tight">CampusBite Admin</div>
+          <div className="font-bold text-lg tracking-tight flex items-center gap-2">
+            CampusBite Admin
+          </div>
         </div>
         <SidebarContent pathname={location.pathname} />
         <div className="p-4 border-t space-y-2">
@@ -99,7 +101,9 @@ export function AdminLayout() {
         
         {/* Mobile Header */}
         <header className="md:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-40">
-          <div className="font-bold text-lg tracking-tight">CampusBite</div>
+          <div className="font-bold text-lg tracking-tight flex items-center gap-2">
+            CampusBite
+          </div>
           
           <div className="flex items-center gap-2">
             <Button
@@ -149,7 +153,7 @@ export function ProtectedAdminRoute({ children }) {
   const { session } = useAuth()
 
   if (!session || session.role !== 'ADMIN') {
-    return <Navigate to="/admin/login" replace />
+    return <Navigate to="/admin" replace />
   }
 
   return children

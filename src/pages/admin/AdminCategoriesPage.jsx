@@ -28,8 +28,8 @@ export function AdminCategoriesPage() {
       } else {
         setCategories(data)
       }
-    })
-    getAdminMenu().then(setMenu)
+    }).catch(console.error)
+    getAdminMenu().then(setMenu).catch(console.error)
   }, [])
 
   const saveToStore = (newCats) => {

@@ -155,8 +155,12 @@ export function LandingPage() {
       </div>
       
       <main className="relative z-10 flex flex-col h-full justify-center">
-        {/* Hero Section */}
         <section className="h-full flex flex-col items-center justify-center px-4 text-center">
+          <div 
+            className={`fade-in ${mounted ? 'is-visible' : ''}`}
+            style={{ transitionDelay: '0ms' }}
+          >
+          </div>
           <h1 
             className={`font-fraunces text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-foreground mb-4 drop-shadow-sm fade-in ${mounted ? 'is-visible' : ''}`}
             style={{ transitionDelay: '0ms' }}
